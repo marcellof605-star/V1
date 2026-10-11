@@ -1,0 +1,39 @@
+[hidden] { display: none !important; }
+  /* Layout: full-bleed 3D view. HUD sits on the edges, touch controls in the bottom corners, one centered panel for the menu. */
+  :root {
+    --ink: #121d17;
+    --panel: rgba(16, 26, 20, 0.92);
+    --edge: #3f5b49;
+    --text: #eef3e6;
+    --muted: #aebdad;
+    --accent: #f2b134;
+    --grass: #5fa83b;
+    --grass-dark: #3f7a27;
+    --dirt: #865c3a;
+    --sand: #dacd92;
+    --stone: #8d928f;
+    --stone-dark: #5f6461;
+    --display: 'Pixelify Sans', ui-monospace, 'Courier New', monospace;
+    --body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --hb: 68px;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--text);
+    font: 15px/1.45 var(--body);
+    overflow: hidden;
+  }
+  #app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  #view { display: block; width: 100%; height: 100%; background: var(--ink); }
