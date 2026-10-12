@@ -58,15 +58,19 @@
   #topbtns { position: absolute; top: 10px; right: 16px; display: flex; gap: 8px; pointer-events: auto; }
   .chip {
     font: 700 14px var(--display);
-    color: var(--text);
-    background: rgba(16, 26, 20, 0.62);
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    padding: 8px 12px;
-    min-height: 40px;
+    color: #fff;
+    background: #3b4a40;
+    border: 3px solid #0b110d;
+    padding: 6px 12px;
+    min-height: 42px;
+    box-shadow: inset 0 -4px 0 #26332a, inset 0 3px 0 #61796a, 3px 3px 0 rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 0 #000;
     cursor: pointer;
   }
-  .chip.on { background: var(--accent); color: #231a05; border-color: #fff3d0; }
+  .chip:active { transform: translate(2px, 2px); box-shadow: inset 0 -2px 0 #26332a, inset 0 2px 0 #61796a, 1px 1px 0 rgba(0, 0, 0, 0.5); }
+  .chip.on { background: var(--accent); color: #231a05; text-shadow: none; box-shadow: inset 0 -4px 0 #b57f12, inset 0 3px 0 #ffd77a, 3px 3px 0 rgba(0, 0, 0, 0.5); }
   .chip:focus-visible, .btn:focus-visible, .slot:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  #wet { position: absolute; inset: 0; background: rgba(30, 90, 190, 0.38); }
   #cross { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; mix-blend-mode: difference; }
   #cross::before, #cross::after { content: ""; position: absolute; background: #fff; }
   #cross::before { left: 10px; top: 0; width: 2px; height: 22px; }
@@ -83,40 +87,54 @@
 
   /* Hotbar */
   #hotbar { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 16px 10px; pointer-events: none; }
-  .bar { position: relative; display: flex; gap: 4px; width: min(100%, 572px); margin: 0 auto; pointer-events: auto; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; }
-  .bar::-webkit-scrollbar { display: none; }
+  .bar { position: relative; display: flex; gap: 4px; width: min(100%, 428px); margin: 0 auto; pointer-events: auto; }
   .slot {
-    position: relative; flex: 0 0 44px; height: 44px;
+    position: relative; flex: 1 1 0; min-width: 0; aspect-ratio: 1; max-height: 48px;
     padding: 0; display: grid; place-items: center;
-    background: rgba(12, 20, 15, 0.62);
-    border: 3px solid #56655b;
+    background: #2a3a30;
+    border: 4px solid #0b110d;
+    box-shadow: inset 0 0 0 2px #4d6355;
     cursor: pointer;
   }
-  .slot canvas { width: 78%; height: auto; image-rendering: pixelated; pointer-events: none; }
+  .slot img, .islot img { width: 78%; height: auto; image-rendering: pixelated; pointer-events: none; }
   .slot .num {
     position: absolute; left: 3px; top: 1px;
     font: 700 10px var(--display); color: var(--muted);
     pointer-events: none;
   }
-  .slot.sel { border-color: var(--accent); background: rgba(242, 177, 52, 0.22); }
+  .slot.sel { background: #566d5b; box-shadow: inset 0 0 0 3px var(--accent), 0 0 0 2px #fff3d0; }
   .slot.sel .num { color: var(--accent); }
   body.touch .slot .num { display: none; }
 
   /* Touch controls */
   #touch { position: absolute; inset: 0; pointer-events: none; }
-  #stickZone { position: absolute; left: 0; bottom: 0; width: 46%; height: 56%; pointer-events: auto; touch-action: none; }
-  #stickBase {
-    position: absolute; left: 28px; bottom: calc(var(--hb) + 22px);
-    width: 112px; height: 112px; border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.45);
-    background: rgba(16, 26, 20, 0.28);
-    opacity: 0.55;
+  #dpad {
+    position: absolute; left: 16px; bottom: calc(var(--hb) + 16px);
+    display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); gap: 4px;
+    pointer-events: none;
   }
-  #stickBase.active { opacity: 1; }
-  #stickKnob {
-    position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px;
-    border-radius: 50%; background: rgba(255, 255, 255, 0.6);
+  .dp {
+    --ar: #fff;
+    position: relative; padding: 0; pointer-events: auto; touch-action: none;
+    background: #3b4a40;
+    border: 4px solid #0b110d;
+    box-shadow: inset 0 -4px 0 #26332a, inset 0 3px 0 #61796a, 3px 3px 0 rgba(0, 0, 0, 0.5);
+    cursor: pointer;
   }
+  .dp::before { content: ""; position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform: translate(-50%, -50%); border-style: solid; }
+  .dp.on { --ar: #231a05; background: var(--accent); transform: translate(2px, 2px); box-shadow: inset 0 -4px 0 #b57f12, inset 0 3px 0 #ffd77a, 1px 1px 0 rgba(0, 0, 0, 0.5); }
+  #dpUp { grid-column: 2; grid-row: 1; }
+  #dpLeft { grid-column: 1; grid-row: 2; }
+  #dpJump { grid-column: 2; grid-row: 2; }
+  #dpRight { grid-column: 3; grid-row: 2; }
+  #dpDown { grid-column: 2; grid-row: 3; }
+  #dpUp::before { border-width: 0 10px 14px 10px; border-color: transparent transparent var(--ar) transparent; }
+  #dpDown::before { border-width: 14px 10px 0 10px; border-color: var(--ar) transparent transparent transparent; }
+  #dpLeft::before { border-width: 10px 14px 10px 0; border-color: transparent var(--ar) transparent transparent; }
+  #dpRight::before { border-width: 10px 0 10px 14px; border-color: transparent transparent transparent var(--ar); }
+  #dpJump { font: 700 10px var(--display); color: var(--ar); text-shadow: 1px 1px 0 #000; }
+  #dpJump.on { text-shadow: none; }
+  #dpJump::before { display: none; }
   #actions {
     position: absolute; right: 16px; bottom: calc(var(--hb) + 16px);
     display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
@@ -125,12 +143,14 @@
   .act {
     pointer-events: auto; touch-action: none;
     width: 96px; height: 50px; padding: 0;
-    font: 700 14px var(--display); letter-spacing: 0.03em; color: var(--text);
-    background: rgba(16, 26, 20, 0.58);
-    border: 3px solid rgba(255, 255, 255, 0.55);
+    font: 700 14px var(--display); letter-spacing: 0.03em; color: #fff;
+    background: #3b4a40;
+    border: 4px solid #0b110d;
+    box-shadow: inset 0 -5px 0 #26332a, inset 0 4px 0 #61796a, 4px 4px 0 rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 0 #000;
     cursor: pointer;
   }
-  .act.on { background: var(--accent); color: #231a05; border-color: #fff3d0; }
+  .act.on { background: var(--accent); color: #231a05; text-shadow: none; transform: translate(2px, 2px); box-shadow: inset 0 -5px 0 #b57f12, inset 0 4px 0 #ffd77a, 2px 2px 0 rgba(0, 0, 0, 0.5); }
   .act.big { height: 58px; }
 
   /* Menu */
@@ -144,8 +164,8 @@
     width: min(100%, 470px); max-height: 100%; overflow-y: auto;
     padding: 20px;
     background: var(--panel);
-    border: 3px solid var(--edge);
-    box-shadow: 0 0 0 3px #0a110d;
+    border: 4px solid #0b110d;
+    box-shadow: inset 0 0 0 3px #4d6355, 6px 6px 0 rgba(0, 0, 0, 0.5);
     display: flex; flex-direction: column; gap: 14px;
   }
   .panel h1 { margin: 0; font: 700 42px/1 var(--display); letter-spacing: 0.02em; color: var(--accent); text-wrap: balance; }
@@ -154,14 +174,15 @@
   .lead { margin: 0; color: var(--muted); max-width: 60ch; }
   .btn {
     font: 700 17px var(--display); color: #fff;
-    background: var(--stone);
-    border: 0; padding: 12px 18px; min-height: 48px;
-    box-shadow: inset 0 -4px 0 var(--stone-dark), inset 0 4px 0 rgba(255, 255, 255, 0.28), 0 0 0 2px #1b1f1d;
-    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+    background: #8d928f;
+    border: 4px solid #0b110d; padding: 10px 18px; min-height: 52px;
+    box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.3), inset 0 4px 0 rgba(255, 255, 255, 0.32), 4px 4px 0 rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
     cursor: pointer;
   }
-  .btn.primary { background: var(--grass); box-shadow: inset 0 -4px 0 var(--grass-dark), inset 0 4px 0 rgba(255, 255, 255, 0.3), 0 0 0 2px #17210f; }
-  .btn:active { transform: translateY(2px); }
+  .btn.primary { background: #5fa83b; }
+  .btn:hover { filter: brightness(1.1); }
+  .btn:active { transform: translate(3px, 3px); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.3), inset 0 3px 0 rgba(255, 255, 255, 0.32), 1px 1px 0 rgba(0, 0, 0, 0.5); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .row .btn { min-width: 0; padding-inline: 10px; }
   .help { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
@@ -169,6 +190,38 @@
   .help h2 { margin: 0 0 4px; font: 700 14px var(--display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
   .help ul { margin: 0; padding-left: 18px; font-size: 14px; }
   .help li + li { margin-top: 2px; }
+
+  .cnt {
+    position: absolute; right: 2px; bottom: 0;
+    font: 700 11px var(--display); color: #fff; text-shadow: 1px 1px 0 #000;
+    pointer-events: none;
+  }
+  .islot .num { position: absolute; left: 3px; top: 1px; font: 700 9px var(--display); color: var(--muted); pointer-events: none; }
+  #inv { position: absolute; inset: 0; z-index: 11; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(8, 14, 10, 0.72); }
+  .invpanel { gap: 10px; }
+  .invpanel h2 { margin: 0; font: 700 22px var(--display); color: var(--accent); }
+  .invpanel h3 { margin: 0; font: 700 12px var(--display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; }
+  .islot {
+    position: relative; min-width: 0; aspect-ratio: 1; padding: 0; display: grid; place-items: center;
+    background: #2a3a30; border: 3px solid #0b110d; box-shadow: inset 0 0 0 2px #4d6355; cursor: pointer;
+  }
+  .islot:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+  .islot.sel { background: #566d5b; box-shadow: inset 0 0 0 2px var(--accent); }
+  .recipes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 6px; }
+  .recipe {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 42px; padding: 4px 8px; text-align: left;
+    font: 700 13px var(--display); color: #fff;
+    background: #2a3a30; border: 3px solid #0b110d; box-shadow: inset 0 0 0 2px #4d6355; cursor: pointer;
+  }
+  .recipe:hover:not(:disabled) { background: #3b4a40; }
+  .recipe:disabled { opacity: 0.4; cursor: default; }
+  .recipe:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+  .recipe img { width: 26px; height: auto; image-rendering: pixelated; flex: none; }
+  .recipe .arr { color: var(--accent); margin: 0 2px; }
+  .recipe .res { margin-left: auto; display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .held { min-height: 20px; font: 700 14px var(--display); color: var(--muted); }
+  .held b { color: var(--text); }
 
   @media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
 
@@ -195,26 +248,46 @@ window.addEventListener('error', function (e) {
   <div id="hud">
     <div id="info"></div>
     <div id="topbtns">
-      <button class="chip" id="flyBtn" type="button">Terbang</button>
+      <button class="chip" id="invBtn" type="button">Tas</button>
       <button class="chip" id="menuBtn" type="button">Menu</button>
     </div>
+    <div id="wet" hidden></div>
     <div id="cross"></div>
     <div id="toast"></div>
   </div>
 
   <div id="touch" hidden>
-    <div id="stickZone">
-      <div id="stickBase"><div id="stickKnob"></div></div>
+    <div id="dpad">
+      <button class="dp" id="dpUp" type="button" aria-label="Maju"></button>
+      <button class="dp" id="dpLeft" type="button" aria-label="Kiri"></button>
+      <button class="dp" id="dpJump" type="button" aria-label="Jongkok">Jongkok</button>
+      <button class="dp" id="dpRight" type="button" aria-label="Kanan"></button>
+      <button class="dp" id="dpDown" type="button" aria-label="Mundur"></button>
     </div>
     <div id="actions">
       <button class="act" id="placeBtn" type="button">Taruh</button>
       <button class="act" id="breakBtn" type="button">Hancurkan</button>
-      <button class="act" id="downBtn" type="button" hidden>Turun</button>
       <button class="act big" id="jumpBtn" type="button">Lompat</button>
     </div>
   </div>
 
   <div id="hotbar"><div class="bar" id="bar"></div></div>
+
+  <div id="inv" hidden>
+    <div class="panel invpanel">
+      <h2>Tas</h2>
+      <div id="palWrap"><h3>Semua balok (mode kreatif)</h3><div class="grid" id="palette"></div></div>
+      <div class="grid" id="invGrid"></div>
+      <h3>Hotbar</h3>
+      <div class="grid" id="invHot"></div>
+      <div id="craftWrap"><h3>Meracik</h3><div class="recipes" id="recipes"></div></div>
+      <div class="held" id="held"></div>
+      <div class="row">
+        <button class="btn" id="invTrash" type="button">Buang</button>
+        <button class="btn primary" id="invClose" type="button">Tutup</button>
+      </div>
+    </div>
+  </div>
 
   <div id="overlay">
     <div class="panel">
@@ -225,23 +298,25 @@ window.addEventListener('error', function (e) {
       <div class="row">
         <button class="btn" id="nightBtn" type="button">Waktu: Siang</button>
         <button class="btn" id="newBtn" type="button">Dunia baru</button>
+        <button class="btn" id="modeBtn" type="button" style="grid-column: 1 / -1">Mode: Bertahan</button>
       </div>
       <div class="help">
         <section>
           <h2>Layar sentuh</h2>
           <ul>
-            <li>Geser di kiri bawah untuk berjalan</li>
-            <li>Geser di sisi kanan untuk melihat sekitar</li>
+            <li>Tombol panah di kiri bawah untuk berjalan, tombol tengah untuk jongkok</li>
+            <li>Mode Kreatif: ketuk Lompat dua kali untuk terbang, dua kali lagi untuk mendarat</li>
+            <li>Geser jari di layar untuk melihat sekitar</li>
             <li>Tombol Hancurkan dan Taruh ada di kanan bawah</li>
-            <li>Geser deretan balok di bawah untuk melihat semuanya</li>
+            <li>Ketuk Tas di kanan atas untuk membuka inventori dan meracik</li>
           </ul>
         </section>
         <section>
           <h2>Keyboard dan mouse</h2>
           <ul>
-            <li>W A S D berjalan, Spasi melompat</li>
+            <li>W A S D berjalan, Spasi melompat, Shift jongkok, Spasi dua kali terbang (Kreatif)</li>
             <li>Klik kiri menghancurkan, klik kanan menaruh</li>
-            <li>Angka 1 sampai 0, tanda - dan = memilih balok, F terbang, Esc membuka menu</li>
+            <li>Angka 1 sampai 9 memilih slot, E membuka tas, F terbang (Kreatif), Esc membuka menu</li>
           </ul>
         </section>
       </div>
@@ -266,8 +341,8 @@ if (typeof THREE === 'undefined') {
   }
 
   /* ---------- Dunia ---------- */
-  var H = 40, CH = 16, CSZ = CH * CH * H;
-  var AIR = 0, GRASS = 1, DIRT = 2, STONE = 3, SAND = 4, LOG = 5, LEAVES = 6, PLANKS = 7, GLASS = 8, BRICK = 9, COBBLE = 10, COAL = 11, GOLD = 12;
+  var H = 56, CH = 16, CSZ = CH * CH * H, TILES = 32, WL = 13;
+  var AIR = 0, GRASS = 1, DIRT = 2, STONE = 3, SAND = 4, LOG = 5, LEAVES = 6, PLANKS = 7, GLASS = 8, BRICK = 9, COBBLE = 10, COAL = 11, GOLD = 12, SNOW = 13, WATER = 14, SBRICK = 15, SANDST = 16, GOLDBLK = 17, COALBLK = 18, KAKTUS = 19, IRON = 20, DIAMOND = 21, GRAVEL = 22, CLAY = 23, DARKPL = 24, SMOOTH = 25, IRONBLK = 26, DIAMBLK = 27, LAMP = 28, PINEL = 29;
   var BLOCKS = {
     1: { name: 'Rumput', top: 0, side: 1, bottom: 2 },
     2: { name: 'Tanah', top: 2, side: 2, bottom: 2 },
@@ -280,9 +355,34 @@ if (typeof THREE === 'undefined') {
     9: { name: 'Bata', top: 10, side: 10, bottom: 10 },
     10: { name: 'Batu kasar', top: 11, side: 11, bottom: 11 },
     11: { name: 'Bijih batu bara', top: 12, side: 12, bottom: 12 },
-    12: { name: 'Bijih emas', top: 13, side: 13, bottom: 13 }
+    12: { name: 'Bijih emas', top: 13, side: 13, bottom: 13 },
+    13: { name: 'Salju', top: 15, side: 15, bottom: 15 },
+    14: { name: 'Air', top: 14, side: 14, bottom: 14 },
+    15: { name: 'Bata batu', top: 16, side: 16, bottom: 16 },
+    16: { name: 'Batu pasir', top: 17, side: 17, bottom: 17 },
+    17: { name: 'Blok emas', top: 18, side: 18, bottom: 18 },
+    18: { name: 'Blok batu bara', top: 19, side: 19, bottom: 19 },
+    19: { name: 'Kaktus', top: 20, side: 21, bottom: 20 },
+    20: { name: 'Bijih besi', top: 22, side: 22, bottom: 22 },
+    21: { name: 'Bijih berlian', top: 23, side: 23, bottom: 23 },
+    22: { name: 'Kerikil', top: 24, side: 24, bottom: 24 },
+    23: { name: 'Tanah liat', top: 25, side: 25, bottom: 25 },
+    24: { name: 'Kayu gelap', top: 26, side: 26, bottom: 26 },
+    25: { name: 'Batu halus', top: 27, side: 27, bottom: 27 },
+    26: { name: 'Blok besi', top: 28, side: 28, bottom: 28 },
+    27: { name: 'Blok berlian', top: 29, side: 29, bottom: 29 },
+    28: { name: 'Lampu', top: 30, side: 30, bottom: 30 },
+    29: { name: 'Daun pinus', top: 31, side: 31, bottom: 31 }
   };
-  var TRANS = [true, false, false, false, false, false, true, false, true, false, false, false, false];
+  /* Alat: id 30 = tongkat, 31..46 = beliung/kapak/sekop/pedang x kayu/batu/besi/berlian. Bukan blok dunia. */
+  var TIER_NAMES = ['kayu', 'batu', 'besi', 'berlian'], TIER_COL = ['#b07f45', '#8f9591', '#e4e4e4', '#4fe3d8'];
+  var KIND_NAMES = ['Beliung', 'Kapak', 'Sekop', 'Pedang'], KIND_KEYS = ['pick', 'axe', 'shovel', 'sword'];
+  BLOCKS[30] = { name: 'Tongkat', item: true };
+  for (var ti = 0; ti < 4; ti++) for (var ki = 0; ki < 4; ki++) {
+    BLOCKS[31 + ti * 4 + ki] = { name: KIND_NAMES[ki] + ' ' + TIER_NAMES[ti], item: true, kind: KIND_KEYS[ki], tier: ti + 1, tcol: TIER_COL[ti] };
+  }
+  var LASTID = 46;
+  var TRANS = (function () { var t = []; for (var i = 0; i < 30; i++) t.push(false); t[0] = t[6] = t[8] = t[14] = t[29] = true; return t; })();
   function rngFrom(s) {
     var a = s >>> 0;
     return function () {
@@ -309,27 +409,77 @@ if (typeof THREE === 'undefined') {
   var seed = 1;
   function heightAt(x, z) {
     var n = vnoise(x / 48, z / 48, seed) * 0.5 + vnoise(x / 18, z / 18, seed + 7) * 0.33 + vnoise(x / 5, z / 5, seed + 13) * 0.17;
-    return Math.floor(10 + n * 16);
+    var h = 10 + n * 16;
+    var mt = vnoise(x / 90, z / 90, seed + 71);
+    if (mt > 0.66) h += (mt - 0.66) * 80;
+    var rv = Math.abs(vnoise(x / 64, z / 64, seed + 31) - 0.5);
+    if (rv < 0.07) {
+      var f = 1 - rv / 0.07;
+      f = f * f * (3 - 2 * f) * Math.max(0, 1 - Math.max(0, mt - 0.55) * 8);
+      h = h * (1 - f) + 7.5 * f;
+    }
+    var lk = vnoise(x / 80, z / 80, seed + 53);
+    if (lk < 0.34) { var g = (0.34 - lk) / 0.34; h -= g * g * 12; }
+    return Math.max(1, Math.floor(h));
   }
   var cKey = function (cx, cz) { return (cx + 32768) * 65536 + (cz + 32768); };
   var chunks = new Map();   /* kunci chunk -> {cx, cz, key, data, maxY, mesh, built} */
   var edits = new Map();    /* kunci chunk -> Map(indeks lokal -> id balok) */
 
+  function biomeAt(x, z) { var bm = vnoise(x / 120, z / 120, seed + 91); return bm < 0.32 ? 1 : (bm > 0.72 ? 2 : 0); }
+  function hash3(x, y, z, sd) {
+    var h = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(z, 1274126177) + Math.imul(sd, 1013904223)) | 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+  function vnoise3(x, y, z, sd) {
+    var xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z), xf = x - xi, yf = y - yi, zf = z - zi;
+    var u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), w = zf * zf * (3 - 2 * zf);
+    var a = hash3(xi, yi, zi, sd), b = hash3(xi + 1, yi, zi, sd), c = hash3(xi, yi + 1, zi, sd), d = hash3(xi + 1, yi + 1, zi, sd);
+    var e = hash3(xi, yi, zi + 1, sd), f = hash3(xi + 1, yi, zi + 1, sd), g = hash3(xi, yi + 1, zi + 1, sd), q = hash3(xi + 1, yi + 1, zi + 1, sd);
+    var x1 = a + (b - a) * u, x2 = c + (d - c) * u, x3 = e + (f - e) * u, x4 = g + (q - g) * u;
+    var y1 = x1 + (x2 - x1) * v, y2 = x3 + (x4 - x3) * v;
+    return y1 + (y2 - y1) * w;
+  }
+
   function genChunk(cx, cz) {
     var data = new Uint8Array(CSZ), x0 = cx * CH, z0 = cz * CH, maxY = 0, lx, lz, y, x, z;
     for (lx = 0; lx < CH; lx++) {
       for (lz = 0; lz < CH; lz++) {
-        var h = heightAt(x0 + lx, z0 + lz), beach = h <= 13;
+        var wx = x0 + lx, wz = z0 + lz;
+        var h = heightAt(wx, wz), beach = h <= WL + 1, bio = biomeAt(wx, wz);
         for (y = 0; y <= h; y++) {
           var b;
-          if (y === h) b = h >= 21 ? STONE : (beach ? SAND : GRASS);
-          else if (y >= h - 3) b = h >= 21 ? STONE : (beach ? SAND : DIRT);
+          if (y === h) {
+            if (h >= 34) b = SNOW;
+            else if (h >= 21) b = STONE;
+            else if (h < WL) { var bd = hash2(wx, wz, seed + 7); b = bd < 0.3 ? GRAVEL : (bd < 0.45 ? CLAY : SAND); }
+            else if (beach || bio === 1) b = SAND;
+            else if (bio === 2) b = SNOW;
+            else b = GRASS;
+          } else if (y >= h - 3) {
+            if (h >= 21) b = STONE;
+            else if (beach || bio === 1) b = SAND;
+            else b = DIRT;
+          } else if (bio === 1 && h < 21 && y >= h - 6) b = SANDST;
           else {
             b = STONE;
-            var orr = hash2(x0 + lx + y * 131, z0 + lz + y * 17, seed + 211);
-            if (orr < 0.014) b = COAL; else if (orr > 0.9975 && y <= 14) b = GOLD;
+            var orr = hash2(wx + y * 131, wz + y * 17, seed + 211);
+            if (orr < 0.014) b = COAL;
+            else if (orr > 0.9975 && y <= 14) b = GOLD;
+            else if (orr > 0.985 && orr <= 0.9975 && y <= 32) b = IRON;
+            else if (y <= 9 && hash2(wx + y * 53, wz + y * 29, seed + 311) > 0.9975) b = DIAMOND;
           }
           data[(y * CH + lz) * CH + lx] = b;
+        }
+        /* gua */
+        for (y = 4; y <= h - 5; y++) {
+          if (Math.abs(vnoise3(wx / 16, y / 10, wz / 16, seed + 201) - 0.5) < 0.07 && Math.abs(vnoise3(wx / 16, y / 10, wz / 16, seed + 202) - 0.5) < 0.08) data[(y * CH + lz) * CH + lx] = AIR;
+        }
+        if (h < WL) {
+          for (y = h + 1; y <= WL; y++) data[(y * CH + lz) * CH + lx] = WATER;
+          if (WL > maxY) maxY = WL;
         }
         if (h > maxY) maxY = h;
       }
@@ -342,16 +492,37 @@ if (typeof THREE === 'undefined') {
       data[i] = b;
       if (wy > maxY) maxY = wy;
     };
-    /* pohon ditentukan oleh posisi dunia, jadi cocok di perbatasan chunk */
-    for (x = x0 - 2; x < x0 + CH + 2; x++) {
-      for (z = z0 - 2; z < z0 + CH + 2; z++) {
-        if (hash2(x, z, seed + 99) >= 0.012) continue;
+    /* pohon, kaktus, pinus: ditentukan oleh posisi dunia, jadi cocok di perbatasan chunk */
+    var PINE_R = [0, 1, 1, 2, 2, 2];
+    for (x = x0 - 3; x < x0 + CH + 3; x++) {
+      for (z = z0 - 3; z < z0 + CH + 3; z++) {
+        var q = hash2(x, z, seed + 99);
+        if (q >= 0.02) continue;
         var gh = heightAt(x, z);
-        if (gh <= 13 || gh >= 21) continue;
-        var th = 4 + (hash2(x, z, seed + 101) < 0.5 ? 0 : 1), top = gh + 1 + th, t, dx, dz, dy;
+        if (gh <= WL + 1 || gh >= 21) continue;
+        var bio2 = biomeAt(x, z), t, dx, dz, dy, rad;
+        if (bio2 === 1) {
+          if (q < 0.006) { var ch2 = 1 + ((hash2(x, z, seed + 105) * 3) | 0); for (t = 1; t <= ch2; t++) put(x, gh + t, z, KAKTUS, false); }
+          continue;
+        }
+        if (q >= 0.012) continue;
+        if (bio2 === 2) {
+          var pt = 6, ptop = gh + 1 + pt;
+          for (t = 1; t <= pt; t++) put(x, gh + t, z, LOG, false);
+          for (dy = -4; dy <= 1; dy++) {
+            rad = PINE_R[1 - dy];
+            for (dx = -rad; dx <= rad; dx++) for (dz = -rad; dz <= rad; dz++) {
+              if (rad >= 2 && Math.abs(dx) === rad && Math.abs(dz) === rad) continue;
+              put(x + dx, ptop + dy, z + dz, PINEL, true);
+            }
+          }
+          continue;
+        }
+        var big = hash2(x, z, seed + 107) < 0.15;
+        var th = big ? 7 : 4 + (hash2(x, z, seed + 101) < 0.5 ? 0 : 1), top = gh + 1 + th;
         for (t = 1; t <= th; t++) put(x, gh + t, z, LOG, false);
-        for (dy = -2; dy <= 1; dy++) {
-          var rad = dy <= -1 ? 2 : 1;
+        for (dy = big ? -3 : -2; dy <= 1; dy++) {
+          rad = big ? (dy <= -1 ? 3 : 2) : (dy <= -1 ? 2 : 1);
           for (dx = -rad; dx <= rad; dx++) {
             for (dz = -rad; dz <= rad; dz++) {
               if (Math.abs(dx) === rad && Math.abs(dz) === rad && (dy >= 0 || hash2(x * 7 + dx, z * 13 + dz + dy * 31, seed + 103) < 0.5)) continue;
@@ -367,13 +538,14 @@ if (typeof THREE === 'undefined') {
       var yy = Math.floor(idx / (CH * CH));
       if (id && yy > maxY) maxY = yy;
     });
-    return { cx: cx, cz: cz, key: key, data: data, maxY: maxY, mesh: null, built: false };
+    return { cx: cx, cz: cz, key: key, data: data, maxY: maxY, mesh: null, wmesh: null, built: false };
   }
   function getChunk(cx, cz) {
     var k = cKey(cx, cz), c = chunks.get(k);
     if (!c) { c = genChunk(cx, cz); chunks.set(k, c); }
     return c;
   }
+  function isBlock(b) { return b !== AIR && b !== WATER; }
   function getBlock(x, y, z) {
     if (y < 0) return STONE;
     if (y >= H) return AIR;
@@ -382,7 +554,7 @@ if (typeof THREE === 'undefined') {
   }
 
   /* ---------- Simpan ---------- */
-  var KEY = 'blokland-save-3';
+  var KEY = 'blokland-save-4';
   var night = false;
   var saved = null;
   try { var raw = localStorage.getItem(KEY); if (raw) saved = JSON.parse(raw); } catch (e) { saved = null; }
@@ -393,17 +565,24 @@ if (typeof THREE === 'undefined') {
       if (!Array.isArray(pair) || typeof pair[0] !== 'number' || !Array.isArray(pair[1])) return;
       var m = new Map();
       pair[1].forEach(function (e) {
-        if (Array.isArray(e) && e[0] >= 0 && e[0] < CSZ && e[1] >= 0 && e[1] <= 12) m.set(e[0], e[1]);
+        if (Array.isArray(e) && e[0] >= 0 && e[0] < CSZ && e[1] >= 0 && e[1] <= 29) m.set(e[0], e[1]);
       });
       edits.set(pair[0], m);
     });
+  }
+
+  var creative = !!(saved && saved.creative);
+  var inv = [];
+  for (var ii = 0; ii < 36; ii++) {
+    var e0 = saved && Array.isArray(saved.inv) ? saved.inv[ii] : null;
+    inv.push(Array.isArray(e0) && e0[0] >= 1 && e0[0] <= 46 && e0[0] !== 14 && e0[1] >= 1 && e0[1] <= 64 ? { id: e0[0] | 0, n: e0[1] | 0 } : null);
   }
 
   var saveTimer = 0;
   function serialize() {
     var arr = [];
     edits.forEach(function (m, k) { arr.push([k, Array.from(m)]); });
-    return { seed: seed, night: night, edits: arr, pos: [player.x, player.y, player.z, yaw, pitch] };
+    return { seed: seed, night: night, creative: creative, inv: inv.map(function (it) { return it ? [it.id, it.n] : 0; }), edits: arr, pos: [player.x, player.y, player.z, yaw, pitch] };
   }
   function saveNow() { try { localStorage.setItem(KEY, JSON.stringify(serialize())); } catch (e) { /* penyimpanan tidak tersedia */ } }
   function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 700); }
@@ -411,16 +590,18 @@ if (typeof THREE === 'undefined') {
   /* ---------- Tekstur ---------- */
   function makeAtlas() {
     var c = document.createElement('canvas');
-    c.width = 256; c.height = 16;
+    c.width = TILES * 16; c.height = 16;
     var g = c.getContext('2d');
     var r = rngFrom(2024);
     var cl = function (v) { return Math.max(0, Math.min(255, Math.round(v))); };
     var dot = function (t, x, y, R, G, B) {
       if (x < 0 || x > 15 || y < 0 || y > 15) return;
+      var f = (t !== 7 && t !== 9 && t !== 14 && t !== 31 && (x === 0 || y === 0 || x === 15 || y === 15)) ? 0.84 : 1;
+      R = ((R - 128) * 1.12 + 128) * f; G = ((G - 128) * 1.12 + 128) * f; B = ((B - 128) * 1.12 + 128) * f;
       g.fillStyle = 'rgb(' + cl(R) + ',' + cl(G) + ',' + cl(B) + ')';
       g.fillRect(t * 16 + x, y, 1, 1);
     };
-    var tone = function (t, x, y, b, v) { var k = (r() - 0.5) * v; dot(t, x, y, b[0] + k, b[1] + k, b[2] + k); };
+    var tone = function (t, x, y, b, v) { var k = (((r() * 3) | 0) - 1) * v * 0.7; dot(t, x, y, b[0] + k, b[1] + k, b[2] + k); };
     var col = function (t, x, y, b, k) { dot(t, x, y, b[0] + k, b[1] + k, b[2] + k); };
     var rnd16 = function () { return (r() * 16) | 0; };
     var x, y, i;
@@ -563,6 +744,125 @@ if (typeof THREE === 'undefined') {
     /* 13 bijih emas */
     stoneFill(13);
     oreBlobs(13, 6, [236, 196, 60], [255, 232, 130], [186, 144, 38]);
+    /* 14 air */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        if (r() < 0.12) col(14, x, y, [46, 98, 196], 38);
+        else if ((x + y * 3) % 8 === 0) col(14, x, y, [46, 98, 196], 26);
+        else tone(14, x, y, [46, 98, 196], 10);
+      }
+    }
+    /* 15 salju */
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(15, x, y, [240, 246, 252], 10);
+    for (i = 0; i < 14; i++) col(15, rnd16(), rnd16(), [240, 246, 252], -34);
+    /* 16 bata batu */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        var sr = (y / 8) | 0, so = (sr % 2) * 4;
+        if (y % 8 === 7 || ((x + so) % 8) === 7) col(16, x, y, [88, 90, 95], (r() - 0.5) * 8);
+        else {
+          var sh = (((((x + so) / 8) | 0) + sr * 3) % 3 - 1) * 8;
+          tone(16, x, y, [138 + sh, 140 + sh, 144 + sh], 14);
+        }
+      }
+    }
+    /* 17 batu pasir */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        if (y === 0 || y === 15 || y === 4 || y === 11) col(17, x, y, [214, 200, 142], -24 + (r() - 0.5) * 8);
+        else tone(17, x, y, [214, 200, 142], 14);
+      }
+    }
+    /* 18 blok emas */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        if (x === 1 || y === 1) col(18, x, y, [244, 205, 70], 24);
+        else if (x === 14 || y === 14) col(18, x, y, [244, 205, 70], -44);
+        else tone(18, x, y, [244, 205, 70], 14);
+      }
+    }
+    for (i = 0; i < 5; i++) col(18, 2 + ((r() * 11) | 0), 2 + ((r() * 11) | 0), [255, 255, 255], 0);
+    /* 19 blok batu bara */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        if (x === 1 || y === 1) col(19, x, y, [38, 38, 44], 22);
+        else if (x === 14 || y === 14) col(19, x, y, [38, 38, 44], -18);
+        else tone(19, x, y, [38, 38, 44], 14);
+      }
+    }
+    for (i = 0; i < 8; i++) col(19, 2 + ((r() * 11) | 0), 2 + ((r() * 11) | 0), [84, 84, 96], 0);
+    var planks = function (t, base, mortar, joint) {
+      var px, py, pr, pb, pj;
+      for (py = 0; py < 16; py++) {
+        for (px = 0; px < 16; px++) {
+          pr = (py / 4) | 0; pb = ((pr * 13) % 3 - 1) * 7; pj = (pr % 2) * 8;
+          if (py % 4 === 3) col(t, px, py, mortar, (r() - 0.5) * 8);
+          else if (px === pj) col(t, px, py, joint, 0);
+          else tone(t, px, py, [base[0] + pb, base[1] + pb, base[2] + pb], 12);
+        }
+      }
+    };
+    var bevel = function (t, base, hi, lo) {
+      var px, py;
+      for (py = 0; py < 16; py++) {
+        for (px = 0; px < 16; px++) {
+          if (px === 1 || py === 1) col(t, px, py, base, hi);
+          else if (px === 14 || py === 14) col(t, px, py, base, lo);
+          else tone(t, px, py, base, 10);
+        }
+      }
+    };
+    /* 20 kaktus atas */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        var cd = Math.max(Math.abs(x - 7.5), Math.abs(y - 7.5));
+        tone(20, x, y, cd >= 6.5 ? [36, 100, 44] : (cd >= 4 ? [50, 128, 58] : [70, 150, 70]), 12);
+      }
+    }
+    /* 21 kaktus samping */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        var cs = (x % 4 === 0) ? -26 : ((x % 4 === 2) ? 14 : 0);
+        tone(21, x, y, [46 + cs, 122 + cs, 54 + cs], 10);
+      }
+    }
+    for (i = 0; i < 12; i++) col(21, rnd16(), rnd16(), [236, 236, 196], 0);
+    /* 22 bijih besi, 23 bijih berlian */
+    stoneFill(22); oreBlobs(22, 6, [214, 160, 120], [240, 196, 160], [160, 110, 80]);
+    stoneFill(23); oreBlobs(23, 5, [88, 228, 224], [200, 255, 252], [40, 160, 170]);
+    /* 24 kerikil */
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(24, x, y, [128, 124, 120], 44);
+    for (i = 0; i < 18; i++) col(24, rnd16(), rnd16(), [128, 124, 120], -44);
+    for (i = 0; i < 10; i++) col(24, rnd16(), rnd16(), [128, 124, 120], 34);
+    /* 25 tanah liat */
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(25, x, y, [160, 166, 180], 10);
+    for (i = 0; i < 9; i++) col(25, rnd16(), rnd16(), [160, 166, 180], -20);
+    /* 26 kayu gelap */
+    planks(26, [100, 70, 46], [64, 42, 28], [78, 52, 34]);
+    /* 27 batu halus */
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(27, x, y, [152, 154, 158], 7);
+    for (i = 0; i < 8; i++) col(27, rnd16(), rnd16(), [152, 154, 158], 14);
+    /* 28 blok besi, 29 blok berlian */
+    bevel(28, [214, 214, 220], 20, -42);
+    col(28, 3, 3, [120, 120, 130], 0); col(28, 12, 3, [120, 120, 130], 0); col(28, 3, 12, [120, 120, 130], 0); col(28, 12, 12, [120, 120, 130], 0);
+    bevel(29, [96, 228, 222], 24, -50);
+    for (i = 0; i < 6; i++) col(29, 2 + ((r() * 11) | 0), 2 + ((r() * 11) | 0), [255, 255, 255], 0);
+    /* 30 lampu */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        if (x === 0 || x === 15 || y === 0 || y === 15) col(30, x, y, [196, 150, 60], 0);
+        else if (x === 7 || x === 8 || y === 7 || y === 8) tone(30, x, y, [228, 190, 100], 8);
+        else tone(30, x, y, (x > 4 && x < 11 && y > 4 && y < 11) ? [255, 250, 214] : [255, 232, 150], 8);
+      }
+    }
+    /* 31 daun pinus */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        if (r() < 0.14) continue;
+        var pq = r();
+        tone(31, x, y, pq < 0.3 ? [18, 60, 44] : (pq > 0.75 ? [44, 110, 76] : [26, 78, 56]), 10);
+      }
+    }
     return c;
   }
   var atlas = makeAtlas();
@@ -587,6 +887,7 @@ if (typeof THREE === 'undefined') {
   var camera = new THREE.PerspectiveCamera(72, 1, 0.05, 220);
   camera.rotation.order = 'YXZ';
   var material = new THREE.MeshBasicMaterial({ map: tex, vertexColors: true, alphaTest: 0.5 });
+  var waterMat = new THREE.MeshBasicMaterial({ map: tex, vertexColors: true, transparent: true, opacity: 0.72, depthWrite: false });
 
   var DAY = { sky: 0x8fc9ec, tint: [1, 1, 1], cloud: 0xffffff, line: 0x000000 };
   var NIGHT = { sky: 0x0a1030, tint: [0.36, 0.42, 0.64], cloud: 0x2b3560, line: 0xffffff };
@@ -605,6 +906,10 @@ if (typeof THREE === 'undefined') {
   })();
 
   var lineMat = new THREE.LineBasicMaterial({ color: 0x000000 });
+  var crackMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0, depthWrite: false });
+  var crack = new THREE.Mesh(new THREE.BoxGeometry(1.01, 1.01, 1.01), crackMat);
+  crack.visible = false;
+  scene.add(crack);
   var hl = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.004, 1.004, 1.004)), lineMat);
   hl.visible = false;
   scene.add(hl);
@@ -614,6 +919,7 @@ if (typeof THREE === 'undefined') {
     scene.background.setHex(t.sky);
     scene.fog.color.setHex(t.sky);
     material.color.setRGB(t.tint[0], t.tint[1], t.tint[2]);
+    waterMat.color.setRGB(t.tint[0], t.tint[1], t.tint[2]);
     cloudMat.color.setHex(t.cloud);
     lineMat.color.setHex(t.line);
     $('nightBtn').textContent = night ? 'Waktu: Malam' : 'Waktu: Siang';
@@ -630,47 +936,56 @@ if (typeof THREE === 'undefined') {
   ];
   var UVS = [[0, 0], [1, 0], [1, 1], [0, 1]];
 
+  function mkGeo(B) {
+    if (!B.vc) return null;
+    var g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(B.pos), 3));
+    g.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(B.nor), 3));
+    g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(B.uv), 2));
+    g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(B.col), 3));
+    g.setIndex(new THREE.BufferAttribute(B.vc > 65535 ? new Uint32Array(B.idx) : new Uint16Array(B.idx), 1));
+    g.computeBoundingSphere();
+    return g;
+  }
   function buildGeometry(c) {
-    var pos = [], nor = [], uv = [], col = [], idx = [], vc = 0;
+    var A = { pos: [], nor: [], uv: [], col: [], idx: [], vc: 0 }, Wt = { pos: [], nor: [], uv: [], col: [], idx: [], vc: 0 };
     var data = c.data, x0 = c.cx * CH, z0 = c.cz * CH, lx, lz, y, f, i;
     for (lx = 0; lx < CH; lx++) {
       for (lz = 0; lz < CH; lz++) {
         for (y = 0; y <= c.maxY; y++) {
           var b = data[(y * CH + lz) * CH + lx];
           if (!b) continue;
-          var def = BLOCKS[b], tv = 0.93 + 0.07 * hash2(x0 + lx + y * 57, z0 + lz, 5);
+          var def = BLOCKS[b], isW = b === WATER, T = isW ? Wt : A;
+          var tv = isW ? 1 : 0.93 + 0.07 * hash2(x0 + lx + y * 57, z0 + lz, 5);
+          var up = y + 1 < H ? data[((y + 1) * CH + lz) * CH + lx] : AIR;
           for (f = 0; f < 6; f++) {
             var F = FACES[f], ax = lx + F.n[0], ay = y + F.n[1], az = lz + F.n[2], nb;
             if (ay < 0) nb = STONE;
             else if (ay >= H) nb = AIR;
             else if (ax >= 0 && ax < CH && az >= 0 && az < CH) nb = data[(ay * CH + az) * CH + ax];
             else nb = getBlock(x0 + ax, ay, z0 + az);
-            if (!TRANS[nb]) continue;
-            if (b === GLASS && nb === GLASS) continue;
-            var tile = def[F.k];
-            var u0 = tile / 16 + 0.0004, u1 = (tile + 1) / 16 - 0.0004;
-            for (i = 0; i < 4; i++) {
-              var v = F.v[i];
-              pos.push(lx + v[0], y + v[1], lz + v[2]);
-              nor.push(F.n[0], F.n[1], F.n[2]);
-              uv.push(UVS[i][0] ? u1 : u0, UVS[i][1]);
-              col.push(F.s * tv, F.s * tv, F.s * tv);
+            if (isW) { if (nb === WATER || !TRANS[nb]) continue; }
+            else {
+              if (!TRANS[nb]) continue;
+              if (b === GLASS && nb === GLASS) continue;
             }
-            idx.push(vc, vc + 1, vc + 2, vc, vc + 2, vc + 3);
-            vc += 4;
+            var tile = def[F.k];
+            var u0 = tile / TILES + 0.0004, u1 = (tile + 1) / TILES - 0.0004;
+            for (i = 0; i < 4; i++) {
+              var v = F.v[i], vy = v[1];
+              if (isW && vy === 1 && up !== WATER) vy = 0.88;
+              T.pos.push(lx + v[0], y + vy, lz + v[2]);
+              T.nor.push(F.n[0], F.n[1], F.n[2]);
+              T.uv.push(UVS[i][0] ? u1 : u0, UVS[i][1]);
+              T.col.push(F.s * tv, F.s * tv, F.s * tv);
+            }
+            T.idx.push(T.vc, T.vc + 1, T.vc + 2, T.vc, T.vc + 2, T.vc + 3);
+            T.vc += 4;
           }
         }
       }
     }
-    if (!vc) return null;
-    var g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos), 3));
-    g.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(nor), 3));
-    g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uv), 2));
-    g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(col), 3));
-    g.setIndex(new THREE.BufferAttribute(vc > 65535 ? new Uint32Array(idx) : new Uint16Array(idx), 1));
-    g.computeBoundingSphere();
-    return g;
+    return { a: mkGeo(A), w: mkGeo(Wt) };
   }
 
   var RD = isTouch ? 4 : 6, streamTimer = 0;
@@ -679,15 +994,22 @@ if (typeof THREE === 'undefined') {
   var dirty = new Set();
   function unloadChunk(c) {
     if (c.mesh) { scene.remove(c.mesh); c.mesh.geometry.dispose(); c.mesh = null; }
+    if (c.wmesh) { scene.remove(c.wmesh); c.wmesh.geometry.dispose(); c.wmesh = null; }
     c.built = false;
   }
   function rebuildChunk(c) {
-    if (c.mesh) { scene.remove(c.mesh); c.mesh.geometry.dispose(); c.mesh = null; }
-    var g = buildGeometry(c);
-    if (g) {
-      c.mesh = new THREE.Mesh(g, material);
+    unloadChunk(c);
+    var r = buildGeometry(c);
+    if (r.a) {
+      c.mesh = new THREE.Mesh(r.a, material);
       c.mesh.position.set(c.cx * CH, 0, c.cz * CH);
       scene.add(c.mesh);
+    }
+    if (r.w) {
+      c.wmesh = new THREE.Mesh(r.w, waterMat);
+      c.wmesh.renderOrder = 1;
+      c.wmesh.position.set(c.cx * CH, 0, c.cz * CH);
+      scene.add(c.wmesh);
     }
     c.built = true;
   }
@@ -714,6 +1036,19 @@ if (typeof THREE === 'undefined') {
     dirty.clear();
     updateChunks(40);
   }
+  var wet = false;
+  function setWet(w) {
+    wet = w;
+    $('wet').hidden = !w;
+    if (w) {
+      scene.fog.near = 1; scene.fog.far = 24;
+      scene.fog.color.setHex(night ? 0x0a1a3a : 0x2a5a9a);
+      scene.background.setHex(night ? 0x0a1a3a : 0x2a5a9a);
+    } else {
+      scene.fog.far = RD * CH - 6; scene.fog.near = scene.fog.far * 0.45;
+      applyTime();
+    }
+  }
   function setBlock(x, y, z, id) {
     var cx = Math.floor(x / CH), cz = Math.floor(z / CH), c = getChunk(cx, cz);
     var lx = x - cx * CH, lz = z - cz * CH, i = (y * CH + lz) * CH + lx;
@@ -733,12 +1068,12 @@ if (typeof THREE === 'undefined') {
   /* ---------- Pemain ---------- */
   var PW = 0.3, PH = 1.8, EYE = 1.62;
   var player = { x: 0.5, y: 30, z: 0.5, vx: 0, vy: 0, vz: 0, onGround: false, fly: false };
-  var yaw = 0, pitch = 0;
+  var yaw = 0, pitch = 0, sneaking = false, swimming = false, eyeH = EYE;
 
   function topY(x, z) { for (var y = H - 1; y >= 0; y--) if (getBlock(x, y, z) !== AIR) return y; return 0; }
   function spawn() {
     var best = null;
-    for (var r = 0; r < 24 && !best; r++) {
+    for (var r = 0; r < 40 && !best; r++) {
       for (var dx = -r; dx <= r && !best; dx++) {
         for (var dz = -r; dz <= r; dz++) {
           if (Math.max(Math.abs(dx), Math.abs(dz)) !== r) continue;
@@ -759,7 +1094,7 @@ if (typeof THREE === 'undefined') {
   function solid(x, y, z) {
     if (y < 0) return true;
     if (y >= H) return false;
-    return getBlock(x, y, z) !== AIR;
+    return isBlock(getBlock(x, y, z));
   }
   function collides(x, y, z) {
     var x0 = Math.floor(x - PW + 1e-4), x1 = Math.floor(x + PW - 1e-4);
@@ -771,8 +1106,8 @@ if (typeof THREE === 'undefined') {
   if (collides(player.x, player.y, player.z)) spawn();
 
   /* ---------- Input ---------- */
-  var keys = {}, virt = { jump: false, down: false }, held = { brk: false, put: false };
-  var stick = { x: 0, y: 0, id: null, ox: 0, oy: 0 };
+  var keys = {}, virt = { jump: false, sneak: false }, held = { brk: false, put: false };
+  var dpad = { up: false, down: false, left: false, right: false };
   var playing = false, started = false, lockWas = false, lastSpace = 0, actCd = 0, sel = 0;
 
   function rotate(dx, dy) {
@@ -780,16 +1115,20 @@ if (typeof THREE === 'undefined') {
     pitch = Math.max(-1.55, Math.min(1.55, pitch));
   }
   function releaseAll() {
-    keys = {}; virt.jump = virt.down = false; held.brk = held.put = false;
-    stick.x = stick.y = 0;
+    keys = {}; virt.jump = virt.sneak = false; sneaking = false; held.brk = held.put = false;
+    dpad.up = dpad.down = dpad.left = dpad.right = false;
+    document.querySelectorAll('.dp.on, .act.on').forEach(function (el) { el.classList.remove('on'); });
   }
   function lock() { try { var r = canvas.requestPointerLock(); if (r && r.catch) r.catch(function () {}); } catch (e) { /* tidak didukung */ } }
 
-  function toggleFly() {
+  function jumpTap() {
+    var t = performance.now();
+    if (t - lastSpace < 350) { toggleFly(); lastSpace = 0; } else lastSpace = t;
+  }
+  function toggleFly(announce) {
+    if (!player.fly && !creative) { if (announce === true) toast('Terbang hanya di mode Kreatif'); return; }
     player.fly = !player.fly;
     player.vy = 0;
-    $('flyBtn').classList.toggle('on', player.fly);
-    $('downBtn').hidden = !player.fly;
   }
 
   /* ---------- Raycast ---------- */
@@ -799,7 +1138,7 @@ if (typeof THREE === 'undefined') {
     return [-cp * Math.sin(yaw), Math.sin(pitch), -cp * Math.cos(yaw)];
   }
   function raycast() {
-    var o = [player.x, player.y + EYE, player.z], d = viewDir();
+    var o = [player.x, player.y + eyeH, player.z], d = viewDir();
     var x = Math.floor(o[0]), y = Math.floor(o[1]), z = Math.floor(o[2]);
     var sx = d[0] > 0 ? 1 : -1, sy = d[1] > 0 ? 1 : -1, sz = d[2] > 0 ? 1 : -1;
     var tdx = d[0] !== 0 ? Math.abs(1 / d[0]) : Infinity;
@@ -810,7 +1149,7 @@ if (typeof THREE === 'undefined') {
     var tmz = d[2] !== 0 ? (d[2] > 0 ? z + 1 - o[2] : o[2] - z) * tdz : Infinity;
     var t = 0, fx = 0, fy = 0, fz = 0;
     while (t <= 6) {
-      if (y >= 0 && y < H && getBlock(x, y, z) !== AIR) {
+      if (y >= 0 && y < H && isBlock(getBlock(x, y, z))) {
         if (!fx && !fy && !fz) return null;
         return { x: x, y: y, z: z, nx: fx, ny: fy, nz: fz };
       }
@@ -823,28 +1162,134 @@ if (typeof THREE === 'undefined') {
   function overlapsPlayer(bx, by, bz) {
     return bx + 1 > player.x - PW && bx < player.x + PW && by + 1 > player.y && by < player.y + PH && bz + 1 > player.z - PW && bz < player.z + PW;
   }
+  /* Lama menghancurkan (detik, dengan tangan kosong) per blok di mode bertahan */
+  var HARD = { 1: 0.6, 2: 0.55, 3: 2.0, 4: 0.5, 5: 1.3, 6: 0.25, 7: 1.0, 8: 0.4, 9: 2.5, 10: 2.2, 11: 2.6, 12: 3.2, 13: 0.25,
+    15: 2.5, 16: 1.2, 17: 4.5, 18: 3.2, 19: 0.5, 20: 3.5, 21: 4.5, 22: 0.6, 23: 0.7, 24: 1.1, 25: 2.2, 26: 5, 27: 6, 28: 0.6, 29: 0.25 };
+  /* Alat yang paling cocok, dan tingkat beliung minimal agar blok menjatuhkan barang (1 kayu, 2 batu, 3 besi, 4 berlian) */
+  var KIND = {}, REQ = {};
+  [3, 9, 10, 11, 12, 15, 16, 17, 18, 20, 21, 25, 26, 27].forEach(function (b) { KIND[b] = 'pick'; REQ[b] = 1; });
+  [5, 7, 24].forEach(function (b) { KIND[b] = 'axe'; });
+  [1, 2, 4, 13, 22, 23].forEach(function (b) { KIND[b] = 'shovel'; });
+  [6, 29, 19].forEach(function (b) { KIND[b] = 'sword'; });
+  REQ[20] = 2; REQ[12] = 3; REQ[17] = 3; REQ[21] = 3; REQ[26] = 3; REQ[27] = 3;
+  var TOOL_SPEED = [1, 2, 4, 6, 8];
+  var mineProg = 0, mineKey = '', mineNeed = 1, mineOk = true;
+  function mineRate(bid) {
+    var it = inv[sel], def = it ? BLOCKS[it.id] : null, tool = def && def.kind ? def : null;
+    var want = KIND[bid], req = REQ[bid] || 0;
+    var pickTier = tool && tool.kind === 'pick' ? tool.tier : 0;
+    if (pickTier < req) return { ok: false, t: (HARD[bid] || 1) * 3.3 };
+    var mult = 1;
+    if (tool && want === tool.kind) mult = tool.kind === 'sword' ? 1.6 : TOOL_SPEED[tool.tier];
+    return { ok: true, t: (HARD[bid] || 1) / mult };
+  }
+  function mineStep(dt) {
+    var t = raycast();
+    if (!t || t.y === 0) { mineProg = 0; mineKey = ''; return; }
+    var key = t.x + ',' + t.y + ',' + t.z;
+    var bid = getBlock(t.x, t.y, t.z);
+    var r = mineRate(bid);
+    if (key !== mineKey) {
+      mineKey = key; mineProg = 0;
+      if (!r.ok) toast('Butuh beliung ' + TIER_NAMES[Math.min(3, REQ[bid] - 1)] + ' atau lebih bagus');
+    }
+    mineOk = r.ok;
+    mineProg += dt / r.t;
+    if (mineProg >= 1) {
+      setBlock(t.x, t.y, t.z, AIR);
+      if (r.ok) addItem(DROPS[bid] || bid, 1);
+      refreshHotbar();
+      mineProg = 0; mineKey = '';
+    }
+  }
   function act(kind) {
     target = raycast();
     actCd = 0.22;
     if (!target) return;
     if (kind === 'brk') {
+      if (!creative) return; /* mode bertahan: menghancurkan butuh waktu, lihat mineStep */
       if (target.y === 0) return;
+      var bid = getBlock(target.x, target.y, target.z);
       setBlock(target.x, target.y, target.z, AIR);
+      if (!creative) { addItem(DROPS[bid] || bid, 1); refreshHotbar(); }
     } else {
+      var held = inv[sel];
+      if (!held) { toast('Slot kosong'); return; }
+      if (BLOCKS[held.id].item) { toast('Alat tidak bisa ditaruh'); return; }
       var nx = target.x + target.nx, ny = target.y + target.ny, nz = target.z + target.nz;
-      if (ny < 0 || ny >= H || getBlock(nx, ny, nz) !== AIR || overlapsPlayer(nx, ny, nz)) return;
-      setBlock(nx, ny, nz, sel + 1);
+      if (ny < 0 || ny >= H || isBlock(getBlock(nx, ny, nz)) || overlapsPlayer(nx, ny, nz)) return;
+      setBlock(nx, ny, nz, held.id);
+      if (!creative) { held.n--; if (held.n <= 0) inv[sel] = null; refreshHotbar(); }
     }
   }
 
-  /* ---------- Hotbar ---------- */
+  /* ---------- Hotbar dan tas ---------- */
   function poly(g, pts) { g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); for (var i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]); g.closePath(); g.fill(); }
+  function drawItemIcon(g, id) {
+    var def = BLOCKS[id], N = 32, SQ = Math.SQRT1_2;
+    var kind = def.kind || 'stick';
+    var M = [], x, y, row;
+    for (y = 0; y < N; y++) { row = []; for (x = 0; x < N; x++) row.push(0); M.push(row); }
+    /* a = sepanjang gagang (kiri bawah ke kanan atas), b = menyamping */
+    for (y = 0; y < N; y++) for (x = 0; x < N; x++) {
+      var px = x + 0.5 - 3, py = y + 0.5 - 29;
+      var a = (px - py) * SQ, b = (px + py) * SQ, m = 0;
+      var ab = Math.abs(b);
+      if (kind === 'stick') { if (a >= 0 && a <= 36 && ab < 1.7) m = 1; }
+      else if (kind === 'pick') {
+        if (a >= 0 && a <= 31 && ab < 1.7) m = 1;
+        var cu = 29 - 0.03 * b * b, th = 1.3 + 2.2 * Math.max(0, 1 - ab / 15);
+        if (ab < 15 && Math.abs(a - cu) < th) m = 2;
+      } else if (kind === 'axe') {
+        if (a >= 0 && a <= 34 && ab < 1.7) m = 1;
+        var half = 3.4 + Math.max(0, -b) * 0.42;
+        if (b > -13 && b < 2.5 && Math.abs(a - 29) < half && b > -13 + Math.pow((a - 29) / half, 2) * 3) m = 2;
+      } else if (kind === 'shovel') {
+        if (a >= 0 && a <= 27 && ab < 1.7) m = 1;
+        var ea = (a - 28.5) / 7.5, eb = b / 4.4;
+        if (Math.pow(Math.abs(ea), 3) + Math.pow(Math.abs(eb), 3) < 1) m = 2;
+      } else if (kind === 'sword') {
+        if (a >= 0 && a <= 7 && ab < 1.6) m = 1;
+        if (a >= 7 && a <= 10 && ab < 6.5) m = 3;
+        var bw = a > 30 ? 2.4 * (37 - a) / 7 : 2.4;
+        if (a > 10 && a <= 37 && ab < bw) m = 2;
+        if ((a - 0) * (a - 0) + b * b < 6 && a < 2) m = 3;
+      }
+      M[y][x] = m;
+    }
+    var P = {
+      1: ['#c08a52', '#8a5c30', '#5a3a1c'], 3: ['#9aa0a6', '#6c7278', '#454a50'],
+      2: [def.tcol]
+    };
+    function shade(hex, f) {
+      var n = parseInt(hex.slice(1), 16), r = n >> 16, gg = (n >> 8) & 255, bb = n & 255;
+      var c = function (v) { return Math.max(0, Math.min(255, Math.round(v * f))); };
+      return 'rgb(' + c(r) + ',' + c(gg) + ',' + c(bb) + ')';
+    }
+    function at(xx, yy) { return xx < 0 || yy < 0 || xx >= N || yy >= N ? 0 : M[yy][xx]; }
+    for (y = 0; y < N; y++) for (x = 0; x < N; x++) {
+      var m2 = M[y][x], col;
+      if (!m2) {
+        if (at(x - 1, y) || at(x + 1, y) || at(x, y - 1) || at(x, y + 1)) col = '#14100c'; else continue;
+      } else {
+        var up = at(x, y - 1) === m2 && at(x - 1, y) === m2, dn = at(x, y + 1) === m2 && at(x + 1, y) === m2;
+        var f = 1;
+        if (!up) f = 1.3; else if (!dn) f = 0.7;
+        var base = m2 === 2 ? def.tcol : (m2 === 1 ? '#a8733f' : '#7d838a');
+        col = shade(base, f);
+        if (m2 === 2 && kind === 'sword' && Math.abs((x - y) * 0 + (((x + 0.5 - 3) + (y + 0.5 - 29)) * SQ)) < 0.8) col = shade(base, 1.25);
+        else if (m2 === 2 && ((x * 7 + y * 13) % 11 === 0)) col = shade(base, 1.12);
+      }
+      g.fillStyle = col; g.fillRect(x, y + 2, 1, 1);
+    }
+  }
   function makeIcon(id) {
     var c = document.createElement('canvas');
     c.width = 32; c.height = 36;
     var g = c.getContext('2d');
     g.imageSmoothingEnabled = false;
     var def = BLOCKS[id];
+    if (def.item) { drawItemIcon(g, id); return c; }
     var draw = function (tile, m) {
       g.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
       g.drawImage(atlas, tile * 16, 0, 16, 16, 0, 0, 16, 16);
@@ -857,38 +1302,202 @@ if (typeof THREE === 'undefined') {
     g.fillStyle = 'rgba(0,0,0,0.42)'; poly(g, [[16, 18], [30, 10], [30, 26], [16, 34]]);
     return c;
   }
-  var slots = [], toastEl = $('toast'), toastTimer = 0;
+  var iconURL = {};
+  function iconOf(id) { if (!iconURL[id]) iconURL[id] = makeIcon(id).toDataURL(); return iconURL[id]; }
+
+  var toastEl = $('toast'), toastTimer = 0;
   function toast(msg) {
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1200);
   }
+
+  var PALETTE = [];
+  for (var pi = 1; pi <= 46; pi++) if (pi !== 14) PALETTE.push(pi);
+  var MAXSTACK = 64;
+  function maxOf(id) { return BLOCKS[id].item ? 1 : MAXSTACK; }
+  var DROPS = { 1: 2, 3: 10 }, cursorItem = null;
+  function addItem(id, n) {
+    var i, t, it;
+    for (i = 0; i < 36 && n > 0; i++) {
+      it = inv[i];
+      if (it && it.id === id && it.n < maxOf(id)) { t = Math.min(n, maxOf(id) - it.n); it.n += t; n -= t; }
+    }
+    for (i = 0; i < 36 && n > 0; i++) {
+      if (!inv[i]) { t = Math.min(n, maxOf(id)); inv[i] = { id: id, n: t }; n -= t; }
+    }
+    saveSoon();
+    return n;
+  }
+  function fillSlot(el, it, label) {
+    el.textContent = '';
+    if (label) { var nm = document.createElement('span'); nm.className = 'num'; nm.textContent = label; el.appendChild(nm); }
+    if (it) {
+      var im = document.createElement('img');
+      im.src = iconOf(it.id); im.alt = BLOCKS[it.id].name;
+      el.appendChild(im);
+      if (it.n > 1) { var ct = document.createElement('span'); ct.className = 'cnt'; ct.textContent = String(it.n); el.appendChild(ct); }
+    }
+  }
+
+  var slots = [];
+  function refreshHotbar() {
+    for (var i = 0; i < 9; i++) fillSlot(slots[i], inv[i], String(i + 1));
+    if (!invEl.hidden) renderInv();
+  }
   function select(i) {
     sel = i;
     slots.forEach(function (s, k) { s.classList.toggle('sel', k === i); });
-    var el = slots[i], bar = $('bar');
-    if (el.offsetLeft < bar.scrollLeft) bar.scrollLeft = el.offsetLeft - 4;
-    else if (el.offsetLeft + el.offsetWidth > bar.scrollLeft + bar.clientWidth) bar.scrollLeft = el.offsetLeft + el.offsetWidth - bar.clientWidth + 4;
-    toast(BLOCKS[i + 1].name);
+    toast(inv[i] ? BLOCKS[inv[i].id].name : 'Kosong');
+    if (!invEl.hidden) renderInv();
   }
   (function () {
     var bar = $('bar');
-    var LABELS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='];
-    for (var i = 0; i < 12; i++) {
+    for (var i = 0; i < 9; i++) {
       (function (i) {
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'slot';
-        b.setAttribute('aria-label', BLOCKS[i + 1].name);
-        b.appendChild(makeIcon(i + 1));
-        var n = document.createElement('span'); n.className = 'num'; n.textContent = LABELS[i]; b.appendChild(n);
+        b.setAttribute('aria-label', 'Slot ' + (i + 1));
         b.addEventListener('click', function () { select(i); });
         bar.appendChild(b); slots.push(b);
       })(i);
     }
-    slots[0].classList.add('sel');
+    slots[sel].classList.add('sel');
   })();
+
+  var invEl = $('inv'), invGrid = $('invGrid'), invHot = $('invHot'), palEl = $('palette'), heldEl = $('held');
+  function clickSlot(i) {
+    var it = inv[i];
+    if (!cursorItem) { if (it) { cursorItem = it; inv[i] = null; } }
+    else if (!it) { inv[i] = cursorItem; cursorItem = null; }
+    else if (it.id === cursorItem.id) {
+      var t = Math.min(cursorItem.n, maxOf(it.id) - it.n);
+      it.n += t; cursorItem.n -= t;
+      if (cursorItem.n <= 0) cursorItem = null;
+    } else { inv[i] = cursorItem; cursorItem = it; }
+    saveSoon();
+    refreshHotbar();
+  }
+  function slotBtn(i, label) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'islot';
+    b.setAttribute('aria-label', 'Slot ' + (i + 1));
+    b.addEventListener('click', function () { clickSlot(i); });
+    fillSlot(b, inv[i], label);
+    return b;
+  }
+  function renderInv() {
+    var i, b;
+    invGrid.textContent = ''; invHot.textContent = '';
+    for (i = 9; i < 36; i++) invGrid.appendChild(slotBtn(i, ''));
+    for (i = 0; i < 9; i++) { b = slotBtn(i, String(i + 1)); if (i === sel) b.classList.add('sel'); invHot.appendChild(b); }
+    $('palWrap').hidden = !creative;
+    if (creative && !palEl.childNodes.length) {
+      PALETTE.forEach(function (id) {
+        var pb = document.createElement('button');
+        pb.type = 'button'; pb.className = 'islot';
+        pb.setAttribute('aria-label', BLOCKS[id].name);
+        fillSlot(pb, { id: id, n: 1 }, '');
+        pb.addEventListener('click', function () { cursorItem = { id: id, n: maxOf(id) }; renderInv(); });
+        palEl.appendChild(pb);
+      });
+    }
+    heldEl.textContent = '';
+    if (cursorItem) {
+      var bd = document.createElement('b');
+      bd.textContent = BLOCKS[cursorItem.id].name + ' ×' + cursorItem.n;
+      heldEl.appendChild(document.createTextNode('Dipegang: '));
+      heldEl.appendChild(bd);
+    } else heldEl.textContent = 'Ketuk slot untuk mengambil, ketuk slot lain untuk menaruh.';
+    renderCraft();
+  }
+  var RECIPES = [
+    { out: [7, 4], in: [[5, 1]] },
+    { out: [8, 2], in: [[4, 4]] },
+    { out: [9, 4], in: [[2, 2], [10, 2]] },
+    { out: [3, 1], in: [[10, 1]] },
+    { out: [1, 1], in: [[2, 1], [6, 1]] },
+    { out: [15, 4], in: [[3, 4]] },
+    { out: [16, 4], in: [[4, 4], [10, 1]] },
+    { out: [17, 1], in: [[12, 4]] },
+    { out: [18, 1], in: [[11, 4]] },
+    { out: [24, 4], in: [[7, 4], [11, 1]] },
+    { out: [25, 4], in: [[3, 4]] },
+    { out: [20 + 6, 1], in: [[20, 4]] },
+    { out: [27, 1], in: [[21, 4]] },
+    { out: [28, 2], in: [[8, 2], [12, 1]] },
+    { out: [9, 4], in: [[23, 4]] },
+    { out: [4, 2], in: [[10, 2]] },
+    { out: [29, 1], in: [[6, 1], [13, 1]] },
+    { out: [30, 4], in: [[7, 2]] }
+  ].concat((function () {
+    var mats = [7, 10, 20, 21], need = [[3, 3, 1, 2], [2, 2, 1, 1]], out = [];
+    /* [bahan, tongkat] per jenis: beliung 3+2, kapak 3+2, sekop 1+2, pedang 2+1 */
+    var cost = [[3, 2], [3, 2], [1, 2], [2, 1]];
+    for (var t = 0; t < 4; t++) for (var k = 0; k < 4; k++) out.push({ out: [31 + t * 4 + k, 1], in: [[mats[t], cost[k][0]], [30, cost[k][1]]] });
+    return out;
+  })());
+  function countOf(id) { var n = 0; for (var i = 0; i < 36; i++) if (inv[i] && inv[i].id === id) n += inv[i].n; return n; }
+  function removeItems(id, n) {
+    for (var i = 35; i >= 0 && n > 0; i--) {
+      var it = inv[i];
+      if (it && it.id === id) { var t = Math.min(n, it.n); it.n -= t; n -= t; if (it.n <= 0) inv[i] = null; }
+    }
+  }
+  function craft(r) {
+    var snap = inv.map(function (it) { return it ? { id: it.id, n: it.n } : null; });
+    r.in.forEach(function (x) { removeItems(x[0], x[1]); });
+    if (addItem(r.out[0], r.out[1]) > 0) {
+      for (var i = 0; i < 36; i++) inv[i] = snap[i];
+      toast('Tas penuh');
+    } else toast(BLOCKS[r.out[0]].name + ' ×' + r.out[1]);
+    refreshHotbar();
+  }
+  function renderCraft() {
+    var box = $('recipes');
+    $('craftWrap').hidden = creative;
+    box.textContent = '';
+    RECIPES.forEach(function (r) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'recipe';
+      b.disabled = !r.in.every(function (x) { return countOf(x[0]) >= x[1]; });
+      r.in.forEach(function (x, k) {
+        if (k) { var pl = document.createElement('span'); pl.textContent = '+'; b.appendChild(pl); }
+        var im = document.createElement('img'); im.src = iconOf(x[0]); im.alt = BLOCKS[x[0]].name; b.appendChild(im);
+        var tx = document.createElement('span'); tx.textContent = '×' + x[1]; b.appendChild(tx);
+      });
+      var arr = document.createElement('span'); arr.className = 'arr'; arr.textContent = '→'; b.appendChild(arr);
+      var res = document.createElement('span'); res.className = 'res';
+      var ri = document.createElement('img'); ri.src = iconOf(r.out[0]); ri.alt = BLOCKS[r.out[0]].name; res.appendChild(ri);
+      var rt = document.createElement('span'); rt.textContent = BLOCKS[r.out[0]].name + ' ×' + r.out[1]; res.appendChild(rt);
+      b.appendChild(res);
+      b.addEventListener('click', function () { craft(r); });
+      box.appendChild(b);
+    });
+  }
+  function openInv() {
+    if (!playing) return;
+    playing = false; releaseAll();
+    if (document.pointerLockElement) { try { document.exitPointerLock(); } catch (e) { /* abaikan */ } }
+    invEl.hidden = false;
+    renderInv();
+  }
+  function closeInv() {
+    if (cursorItem) { addItem(cursorItem.id, cursorItem.n); cursorItem = null; }
+    invEl.hidden = true;
+    refreshHotbar();
+    playing = true;
+    if (!isTouch) lock();
+    saveSoon();
+  }
+  function toggleInv() { if (invEl.hidden) openInv(); else closeInv(); }
+  $('invBtn').addEventListener('click', toggleInv);
+  $('invClose').addEventListener('click', closeInv);
+  $('invTrash').addEventListener('click', function () { cursorItem = null; renderInv(); });
+  refreshHotbar();
 
   /* ---------- Menu ---------- */
   var overlay = $('overlay');
@@ -901,14 +1510,16 @@ if (typeof THREE === 'undefined') {
     saveNow();
   }
   function closeMenu() {
+    if (!started && !creative && !inv.some(Boolean)) toast('Hancurkan balok untuk mengumpulkan bahan');
     started = true; playing = true;
     overlay.hidden = true;
     if (!isTouch) lock();
   }
   $('playBtn').addEventListener('click', closeMenu);
   $('menuBtn').addEventListener('click', openMenu);
-  $('flyBtn').addEventListener('click', toggleFly);
   $('nightBtn').addEventListener('click', function () { night = !night; applyTime(); saveSoon(); });
+  function applyMode() { $('modeBtn').textContent = creative ? 'Mode: Kreatif' : 'Mode: Bertahan'; }
+  $('modeBtn').addEventListener('click', function () { creative = !creative; if (!creative) player.fly = false; applyMode(); saveSoon(); });
   var newArm = 0;
   $('newBtn').addEventListener('click', function () {
     var b = $('newBtn');
@@ -934,24 +1545,26 @@ if (typeof THREE === 'undefined') {
 
   window.addEventListener('keydown', function (e) {
     if (e.code === 'Escape') {
-      if (playing && !document.pointerLockElement) openMenu();
+      if (!invEl.hidden) closeInv();
+      else if (playing && !document.pointerLockElement) openMenu();
       else if (!playing && started) closeMenu();
       return;
     }
+    if (e.code === 'KeyE' && started && overlay.hidden && !e.repeat) { toggleInv(); return; }
     if (!playing) return;
     if (e.code === 'Space') {
       e.preventDefault();
-      if (!e.repeat) { var t = performance.now(); if (t - lastSpace < 300) toggleFly(); lastSpace = t; }
+      if (!e.repeat) jumpTap();
     }
     if (e.code.indexOf('Arrow') === 0) e.preventDefault();
     keys[e.code] = true;
-    if (e.code === 'KeyF' && !e.repeat) toggleFly();
-    var hk = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3, Digit5: 4, Digit6: 5, Digit7: 6, Digit8: 7, Digit9: 8, Digit0: 9, Minus: 10, Equal: 11 };
+    if (e.code === 'KeyF' && !e.repeat) toggleFly(true);
+    var hk = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3, Digit5: 4, Digit6: 5, Digit7: 6, Digit8: 7, Digit9: 8 };
     if (hk[e.code] !== undefined) select(hk[e.code]);
   });
   window.addEventListener('keyup', function (e) { keys[e.code] = false; });
   window.addEventListener('blur', releaseAll);
-  canvas.addEventListener('wheel', function (e) { e.preventDefault(); if (playing) select((sel + (e.deltaY > 0 ? 1 : -1) + 12) % 12); }, { passive: false });
+  canvas.addEventListener('wheel', function (e) { e.preventDefault(); if (playing) select((sel + (e.deltaY > 0 ? 1 : -1) + 9) % 9); }, { passive: false });
 
   var look = { id: null, x: 0, y: 0, moved: 0, type: '', btn: 0 };
   canvas.addEventListener('pointerdown', function (e) {
@@ -997,37 +1610,6 @@ if (typeof THREE === 'undefined') {
   if (isTouch) enableTouch();
   window.addEventListener('pointerdown', function (e) { if (e.pointerType === 'touch') enableTouch(); }, true);
 
-  var zone = $('stickZone'), base = $('stickBase'), knob = $('stickKnob');
-  zone.addEventListener('pointerdown', function (e) {
-    if (stick.id !== null || !playing) return;
-    e.preventDefault();
-    stick.id = e.pointerId; stick.ox = e.clientX; stick.oy = e.clientY;
-    try { zone.setPointerCapture(e.pointerId); } catch (err) { /* abaikan */ }
-    var r = zone.getBoundingClientRect();
-    base.classList.add('active');
-    base.style.left = (e.clientX - r.left - 56) + 'px';
-    base.style.top = (e.clientY - r.top - 56) + 'px';
-    base.style.bottom = 'auto';
-  });
-  zone.addEventListener('pointermove', function (e) {
-    if (e.pointerId !== stick.id) return;
-    var dx = e.clientX - stick.ox, dy = e.clientY - stick.oy, R = 52, m = Math.hypot(dx, dy);
-    if (m > R) { dx = dx / m * R; dy = dy / m * R; }
-    knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
-    var nx = dx / R, ny = dy / R;
-    if (Math.hypot(nx, ny) < 0.18) { nx = 0; ny = 0; }
-    stick.x = nx; stick.y = ny;
-  });
-  function stickEnd(e) {
-    if (e.pointerId !== stick.id) return;
-    stick.id = null; stick.x = stick.y = 0;
-    knob.style.transform = '';
-    base.classList.remove('active');
-    base.style.left = ''; base.style.top = ''; base.style.bottom = '';
-  }
-  zone.addEventListener('pointerup', stickEnd);
-  zone.addEventListener('pointercancel', stickEnd);
-
   function bindHold(el, down, up) {
     el.addEventListener('pointerdown', function (e) {
       e.preventDefault(); e.stopPropagation();
@@ -1039,46 +1621,70 @@ if (typeof THREE === 'undefined') {
     el.addEventListener('pointerup', end);
     el.addEventListener('pointercancel', end);
   }
-  bindHold($('jumpBtn'), function () { virt.jump = true; }, function () { virt.jump = false; });
-  bindHold($('downBtn'), function () { virt.down = true; }, function () { virt.down = false; });
+  bindHold($('jumpBtn'), function () { virt.jump = true; jumpTap(); }, function () { virt.jump = false; });
   bindHold($('breakBtn'), function () { held.brk = true; act('brk'); actCd = 0.3; }, function () { held.brk = false; });
   bindHold($('placeBtn'), function () { held.put = true; act('put'); actCd = 0.3; }, function () { held.put = false; });
+  bindHold($('dpUp'), function () { dpad.up = true; }, function () { dpad.up = false; });
+  bindHold($('dpDown'), function () { dpad.down = true; }, function () { dpad.down = false; });
+  bindHold($('dpLeft'), function () { dpad.left = true; }, function () { dpad.left = false; });
+  bindHold($('dpRight'), function () { dpad.right = true; }, function () { dpad.right = false; });
+  bindHold($('dpJump'), function () { virt.sneak = true; }, function () { virt.sneak = false; });
 
   /* ---------- Update ---------- */
+  function hasFloor(x, y, z) {
+    var by = Math.floor(y - 0.3);
+    var x0 = Math.floor(x - PW), x1 = Math.floor(x + PW), z0 = Math.floor(z - PW), z1 = Math.floor(z + PW);
+    for (var bx = x0; bx <= x1; bx++) for (var bz = z0; bz <= z1; bz++) if (solid(bx, by, bz)) return true;
+    return false;
+  }
   function stepUp(nx, nz) {
-    if (player.fly || !player.onGround) return;
+    if (swimming && (keys.Space || virt.jump) && !collides(nx, player.y + 1.0, nz)) { player.vy = 6.2; return; }
+    if (player.fly || !player.onGround || sneaking) return;
     if (Math.abs(player.vx) + Math.abs(player.vz) < 0.1) return;
     if (!collides(nx, player.y + 1.0, nz)) { player.vy = 7.6; player.onGround = false; }
   }
   function update(dt) {
     var p = player, f = 0, s = 0;
+    sneaking = !!(keys.ShiftLeft || keys.ShiftRight || virt.sneak);
     if (keys.KeyW || keys.ArrowUp) f += 1;
     if (keys.KeyS || keys.ArrowDown) f -= 1;
     if (keys.KeyD || keys.ArrowRight) s += 1;
     if (keys.KeyA || keys.ArrowLeft) s -= 1;
-    f -= stick.y; s += stick.x;
+    if (dpad.up) f += 1;
+    if (dpad.down) f -= 1;
+    if (dpad.right) s += 1;
+    if (dpad.left) s -= 1;
     var len = Math.hypot(f, s);
     if (len > 1) { f /= len; s /= len; }
-    var sy = Math.sin(yaw), cy = Math.cos(yaw), speed = p.fly ? 9 : 4.4;
+    swimming = !p.fly && getBlock(Math.floor(p.x), Math.floor(p.y + 0.5), Math.floor(p.z)) === WATER;
+    var sy = Math.sin(yaw), cy = Math.cos(yaw), speed = p.fly ? 9 : (swimming ? 2.4 : (sneaking ? 1.6 : 4.4));
     p.vx = (-sy * f + cy * s) * speed;
     p.vz = (-cy * f - sy * s) * speed;
-    var jump = keys.Space || virt.jump, down = keys.ShiftLeft || keys.ShiftRight || virt.down;
+    var jump = keys.Space || virt.jump, down = sneaking;
     if (p.fly) p.vy = ((jump ? 1 : 0) - (down ? 1 : 0)) * 7;
-    else {
+    else if (swimming) {
+      var goal = jump ? 3.4 : (down ? -3.4 : -1.2);
+      p.vy += (goal - p.vy) * Math.min(1, 6 * dt);
+    } else {
       p.vy = Math.max(-40, p.vy - 26 * dt);
       if (jump && p.onGround) { p.vy = 8.4; p.onGround = false; }
     }
     var nx = p.x + p.vx * dt;
-    if (!collides(nx, p.y, p.z)) p.x = nx; else stepUp(nx, p.z);
+    var edge = sneaking && !p.fly && p.onGround;
+    if (!collides(nx, p.y, p.z)) { if (!edge || hasFloor(nx, p.y, p.z)) p.x = nx; } else stepUp(nx, p.z);
     var nz = p.z + p.vz * dt;
-    if (!collides(p.x, p.y, nz)) p.z = nz; else stepUp(p.x, nz);
+    if (!collides(p.x, p.y, nz)) { if (!edge || hasFloor(p.x, p.y, nz)) p.z = nz; } else stepUp(p.x, nz);
     var ny = p.y + p.vy * dt;
     if (!collides(p.x, ny, p.z)) { p.y = ny; if (p.vy !== 0) p.onGround = false; }
     else { if (p.vy < 0) p.onGround = true; p.vy = 0; }
 
-    if (held.brk || held.put) {
-      actCd -= dt;
-      if (actCd <= 0) act(held.brk ? 'brk' : 'put');
+    if (held.brk && !creative) mineStep(dt);
+    else {
+      mineProg = 0; mineKey = '';
+      if (held.brk || held.put) {
+        actCd -= dt;
+        if (actCd <= 0) act(held.brk ? 'brk' : 'put');
+      }
     }
   }
 
@@ -1100,12 +1706,19 @@ if (typeof THREE === 'undefined') {
     last = now;
     if (playing) update(dt);
 
-    camera.position.set(player.x, player.y + EYE, player.z);
+    eyeH += ((sneaking ? 1.27 : EYE) - eyeH) * Math.min(1, dt * 14);
+    camera.position.set(player.x, player.y + eyeH, player.z);
     camera.rotation.set(pitch, yaw, 0);
+    var eyeWet = getBlock(Math.floor(player.x), Math.floor(player.y + eyeH), Math.floor(player.z)) === WATER;
+    if (eyeWet !== wet) setWet(eyeWet);
 
     target = raycast();
     if (target) { hl.position.set(target.x + 0.5, target.y + 0.5, target.z + 0.5); hl.visible = playing; }
     else hl.visible = false;
+    if (playing && !creative && mineKey && mineProg > 0 && target) {
+      crack.position.copy(hl.position); crack.visible = true;
+      crackMat.opacity = Math.min(0.65, mineProg * 0.65);
+    } else crack.visible = false;
 
     var n = 0;
     dirty.forEach(function (k) {
@@ -1132,6 +1745,7 @@ if (typeof THREE === 'undefined') {
   }
 
   applyTime();
+  applyMode();
   resize();
   rebuildAll();
   requestAnimationFrame(frame);
