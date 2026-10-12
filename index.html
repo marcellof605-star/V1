@@ -83,9 +83,10 @@
 
   /* Hotbar */
   #hotbar { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 16px 10px; pointer-events: none; }
-  .bar { display: flex; gap: 4px; width: min(100%, 432px); margin: 0 auto; pointer-events: auto; }
+  .bar { position: relative; display: flex; gap: 4px; width: min(100%, 572px); margin: 0 auto; pointer-events: auto; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; }
+  .bar::-webkit-scrollbar { display: none; }
   .slot {
-    position: relative; flex: 1 1 0; min-width: 0; aspect-ratio: 1; max-height: 50px;
+    position: relative; flex: 0 0 44px; height: 44px;
     padding: 0; display: grid; place-items: center;
     background: rgba(12, 20, 15, 0.62);
     border: 3px solid #56655b;
@@ -219,7 +220,7 @@ window.addEventListener('error', function (e) {
     <div class="panel">
       <h1>Blokland</h1>
       <div class="strip"><i style="background:var(--grass)"></i><i style="background:var(--dirt)"></i><i style="background:var(--stone)"></i><i style="background:var(--sand)"></i></div>
-      <p class="lead">Jelajahi dunia balok acak, lalu bangun apa pun yang kamu mau. Perubahan tersimpan otomatis di perangkat ini.</p>
+      <p class="lead">Jelajahi dunia balok acak yang tidak ada ujungnya, lalu bangun apa pun yang kamu mau. Perubahan tersimpan otomatis di perangkat ini.</p>
       <button class="btn primary" id="playBtn" type="button" disabled>Memuat…</button>
       <div class="row">
         <button class="btn" id="nightBtn" type="button">Waktu: Siang</button>
@@ -232,6 +233,7 @@ window.addEventListener('error', function (e) {
             <li>Geser di kiri bawah untuk berjalan</li>
             <li>Geser di sisi kanan untuk melihat sekitar</li>
             <li>Tombol Hancurkan dan Taruh ada di kanan bawah</li>
+            <li>Geser deretan balok di bawah untuk melihat semuanya</li>
           </ul>
         </section>
         <section>
@@ -239,7 +241,7 @@ window.addEventListener('error', function (e) {
           <ul>
             <li>W A S D berjalan, Spasi melompat</li>
             <li>Klik kiri menghancurkan, klik kanan menaruh</li>
-            <li>1 sampai 8 memilih balok, F terbang, Esc membuka menu</li>
+            <li>Angka 1 sampai 0, tanda - dan = memilih balok, F terbang, Esc membuka menu</li>
           </ul>
         </section>
       </div>
@@ -264,8 +266,8 @@ if (typeof THREE === 'undefined') {
   }
 
   /* ---------- Dunia ---------- */
-  var W = 64, D = 64, H = 40, CH = 16, NC = W / CH;
-  var AIR = 0, GRASS = 1, DIRT = 2, STONE = 3, SAND = 4, LOG = 5, LEAVES = 6, PLANKS = 7, GLASS = 8;
+  var H = 40, CH = 16, CSZ = CH * CH * H;
+  var AIR = 0, GRASS = 1, DIRT = 2, STONE = 3, SAND = 4, LOG = 5, LEAVES = 6, PLANKS = 7, GLASS = 8, BRICK = 9, COBBLE = 10, COAL = 11, GOLD = 12;
   var BLOCKS = {
     1: { name: 'Rumput', top: 0, side: 1, bottom: 2 },
     2: { name: 'Tanah', top: 2, side: 2, bottom: 2 },
@@ -274,13 +276,13 @@ if (typeof THREE === 'undefined') {
     5: { name: 'Kayu', top: 6, side: 5, bottom: 6 },
     6: { name: 'Daun', top: 7, side: 7, bottom: 7 },
     7: { name: 'Papan', top: 8, side: 8, bottom: 8 },
-    8: { name: 'Kaca', top: 9, side: 9, bottom: 9 }
+    8: { name: 'Kaca', top: 9, side: 9, bottom: 9 },
+    9: { name: 'Bata', top: 10, side: 10, bottom: 10 },
+    10: { name: 'Batu kasar', top: 11, side: 11, bottom: 11 },
+    11: { name: 'Bijih batu bara', top: 12, side: 12, bottom: 12 },
+    12: { name: 'Bijih emas', top: 13, side: 13, bottom: 13 }
   };
-  var TRANS = [true, false, false, false, false, false, true, false, true];
-  var world = new Uint8Array(W * D * H);
-  var IDX = function (x, y, z) { return (y * D + z) * W + x; };
-  var inB = function (x, y, z) { return x >= 0 && x < W && y >= 0 && y < H && z >= 0 && z < D; };
-
+  var TRANS = [true, false, false, false, false, false, true, false, true, false, false, false, false];
   function rngFrom(s) {
     var a = s >>> 0;
     return function () {
@@ -306,72 +308,102 @@ if (typeof THREE === 'undefined') {
 
   var seed = 1;
   function heightAt(x, z) {
-    var n = vnoise(x / 24, z / 24, seed) * 0.6 + vnoise(x / 10, z / 10, seed + 7) * 0.3 + vnoise(x / 4, z / 4, seed + 13) * 0.1;
+    var n = vnoise(x / 48, z / 48, seed) * 0.5 + vnoise(x / 18, z / 18, seed + 7) * 0.33 + vnoise(x / 5, z / 5, seed + 13) * 0.17;
     return Math.floor(10 + n * 16);
   }
-  function setRaw(x, y, z, b) { if (inB(x, y, z)) world[IDX(x, y, z)] = b; }
-  function getRaw(x, y, z) { return inB(x, y, z) ? world[IDX(x, y, z)] : AIR; }
+  var cKey = function (cx, cz) { return (cx + 32768) * 65536 + (cz + 32768); };
+  var chunks = new Map();   /* kunci chunk -> {cx, cz, key, data, maxY, mesh, built} */
+  var edits = new Map();    /* kunci chunk -> Map(indeks lokal -> id balok) */
 
-  function generate() {
-    world.fill(0);
-    var x, z, y;
-    for (x = 0; x < W; x++) {
-      for (z = 0; z < D; z++) {
-        var h = heightAt(x, z), beach = h <= 13;
+  function genChunk(cx, cz) {
+    var data = new Uint8Array(CSZ), x0 = cx * CH, z0 = cz * CH, maxY = 0, lx, lz, y, x, z;
+    for (lx = 0; lx < CH; lx++) {
+      for (lz = 0; lz < CH; lz++) {
+        var h = heightAt(x0 + lx, z0 + lz), beach = h <= 13;
         for (y = 0; y <= h; y++) {
           var b;
-          if (y === h) b = beach ? SAND : GRASS;
-          else if (y >= h - 3) b = beach ? SAND : DIRT;
-          else b = STONE;
-          world[IDX(x, y, z)] = b;
+          if (y === h) b = h >= 21 ? STONE : (beach ? SAND : GRASS);
+          else if (y >= h - 3) b = h >= 21 ? STONE : (beach ? SAND : DIRT);
+          else {
+            b = STONE;
+            var orr = hash2(x0 + lx + y * 131, z0 + lz + y * 17, seed + 211);
+            if (orr < 0.014) b = COAL; else if (orr > 0.9975 && y <= 14) b = GOLD;
+          }
+          data[(y * CH + lz) * CH + lx] = b;
+        }
+        if (h > maxY) maxY = h;
+      }
+    }
+    var put = function (wx, wy, wz, b, onlyAir) {
+      var px = wx - x0, pz = wz - z0;
+      if (px < 0 || px >= CH || pz < 0 || pz >= CH || wy < 0 || wy >= H) return;
+      var i = (wy * CH + pz) * CH + px;
+      if (onlyAir && data[i]) return;
+      data[i] = b;
+      if (wy > maxY) maxY = wy;
+    };
+    /* pohon ditentukan oleh posisi dunia, jadi cocok di perbatasan chunk */
+    for (x = x0 - 2; x < x0 + CH + 2; x++) {
+      for (z = z0 - 2; z < z0 + CH + 2; z++) {
+        if (hash2(x, z, seed + 99) >= 0.012) continue;
+        var gh = heightAt(x, z);
+        if (gh <= 13 || gh >= 21) continue;
+        var th = 4 + (hash2(x, z, seed + 101) < 0.5 ? 0 : 1), top = gh + 1 + th, t, dx, dz, dy;
+        for (t = 1; t <= th; t++) put(x, gh + t, z, LOG, false);
+        for (dy = -2; dy <= 1; dy++) {
+          var rad = dy <= -1 ? 2 : 1;
+          for (dx = -rad; dx <= rad; dx++) {
+            for (dz = -rad; dz <= rad; dz++) {
+              if (Math.abs(dx) === rad && Math.abs(dz) === rad && (dy >= 0 || hash2(x * 7 + dx, z * 13 + dz + dy * 31, seed + 103) < 0.5)) continue;
+              put(x + dx, top + dy, z + dz, LEAVES, true);
+            }
+          }
         }
       }
     }
-    var rnd = rngFrom(seed * 31 + 5);
-    for (x = 3; x < W - 3; x++) {
-      for (z = 3; z < D - 3; z++) {
-        if (rnd() < 0.012) {
-          var gy = heightAt(x, z);
-          if (world[IDX(x, gy, z)] === GRASS) tree(x, gy + 1, z, rnd);
-        }
-      }
-    }
+    var key = cKey(cx, cz), m = edits.get(key);
+    if (m) m.forEach(function (id, idx) {
+      data[idx] = id;
+      var yy = Math.floor(idx / (CH * CH));
+      if (id && yy > maxY) maxY = yy;
+    });
+    return { cx: cx, cz: cz, key: key, data: data, maxY: maxY, mesh: null, built: false };
   }
-  function tree(x, y, z, rnd) {
-    var th = 4 + Math.floor(rnd() * 2), i, dx, dz, dy;
-    for (i = 0; i < th; i++) setRaw(x, y + i, z, LOG);
-    var top = y + th;
-    for (dy = -2; dy <= 1; dy++) {
-      var rad = dy <= -1 ? 2 : 1;
-      for (dx = -rad; dx <= rad; dx++) {
-        for (dz = -rad; dz <= rad; dz++) {
-          if (Math.abs(dx) === rad && Math.abs(dz) === rad && (dy >= 0 || rnd() < 0.5)) continue;
-          if (getRaw(x + dx, top + dy, z + dz) === AIR) setRaw(x + dx, top + dy, z + dz, LEAVES);
-        }
-      }
-    }
+  function getChunk(cx, cz) {
+    var k = cKey(cx, cz), c = chunks.get(k);
+    if (!c) { c = genChunk(cx, cz); chunks.set(k, c); }
+    return c;
+  }
+  function getBlock(x, y, z) {
+    if (y < 0) return STONE;
+    if (y >= H) return AIR;
+    var cx = Math.floor(x / CH), cz = Math.floor(z / CH), c = getChunk(cx, cz);
+    return c.data[(y * CH + (z - cz * CH)) * CH + (x - cx * CH)];
   }
 
   /* ---------- Simpan ---------- */
-  var KEY = 'blokland-save-1';
-  var edits = new Map();
+  var KEY = 'blokland-save-3';
   var night = false;
   var saved = null;
   try { var raw = localStorage.getItem(KEY); if (raw) saved = JSON.parse(raw); } catch (e) { saved = null; }
   if (saved && typeof saved.seed === 'number') { seed = saved.seed; night = !!saved.night; }
   else { seed = 1 + Math.floor(Math.random() * 99999); saved = null; }
-
-  generate();
   if (saved && Array.isArray(saved.edits)) {
     saved.edits.forEach(function (pair) {
-      var i = pair[0], id = pair[1];
-      if (typeof i === 'number' && i >= 0 && i < world.length && id >= 0 && id <= 8) { world[i] = id; edits.set(i, id); }
+      if (!Array.isArray(pair) || typeof pair[0] !== 'number' || !Array.isArray(pair[1])) return;
+      var m = new Map();
+      pair[1].forEach(function (e) {
+        if (Array.isArray(e) && e[0] >= 0 && e[0] < CSZ && e[1] >= 0 && e[1] <= 12) m.set(e[0], e[1]);
+      });
+      edits.set(pair[0], m);
     });
   }
 
   var saveTimer = 0;
   function serialize() {
-    return { seed: seed, night: night, edits: Array.from(edits), pos: [player.x, player.y, player.z, yaw, pitch] };
+    var arr = [];
+    edits.forEach(function (m, k) { arr.push([k, Array.from(m)]); });
+    return { seed: seed, night: night, edits: arr, pos: [player.x, player.y, player.z, yaw, pitch] };
   }
   function saveNow() { try { localStorage.setItem(KEY, JSON.stringify(serialize())); } catch (e) { /* penyimpanan tidak tersedia */ } }
   function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 700); }
@@ -383,44 +415,154 @@ if (typeof THREE === 'undefined') {
     var g = c.getContext('2d');
     var r = rngFrom(2024);
     var cl = function (v) { return Math.max(0, Math.min(255, Math.round(v))); };
-    var dot = function (t, x, y, R, G, B) { g.fillStyle = 'rgb(' + cl(R) + ',' + cl(G) + ',' + cl(B) + ')'; g.fillRect(t * 16 + x, y, 1, 1); };
-    var noise = function (t, x, y, b, v) { var k = (r() - 0.5) * v; dot(t, x, y, b[0] + k, b[1] + k, b[2] + k); };
+    var dot = function (t, x, y, R, G, B) {
+      if (x < 0 || x > 15 || y < 0 || y > 15) return;
+      g.fillStyle = 'rgb(' + cl(R) + ',' + cl(G) + ',' + cl(B) + ')';
+      g.fillRect(t * 16 + x, y, 1, 1);
+    };
+    var tone = function (t, x, y, b, v) { var k = (r() - 0.5) * v; dot(t, x, y, b[0] + k, b[1] + k, b[2] + k); };
+    var col = function (t, x, y, b, k) { dot(t, x, y, b[0] + k, b[1] + k, b[2] + k); };
+    var rnd16 = function () { return (r() * 16) | 0; };
     var x, y, i;
+
+    var GRASS_C = [98, 164, 58], DIRT_C = [134, 94, 60], STONE_C = [127, 128, 132];
+
+    var grassPx = function (t, px, py) {
+      var q = r();
+      if (q < 0.14) col(t, px, py, GRASS_C, -30 + (r() - 0.5) * 8);
+      else if (q > 0.9) col(t, px, py, GRASS_C, 24 + (r() - 0.5) * 8);
+      else tone(t, px, py, GRASS_C, 26);
+    };
+    var dirtSpecks = function (t, minY) {
+      var n, px, py;
+      for (n = 0; n < 16; n++) { px = rnd16(); py = rnd16(); if (py >= minY) col(t, px, py, DIRT_C, -34); }
+      for (n = 0; n < 9; n++) { px = rnd16(); py = rnd16(); if (py >= minY) col(t, px, py, DIRT_C, 26); }
+      for (n = 0; n < 4; n++) {
+        px = rnd16(); py = rnd16();
+        if (py >= minY) { col(t, px, py, [150, 146, 140], 0); col(t, px + 1, py, [124, 120, 114], 0); }
+      }
+    };
+    var stoneFill = function (t) {
+      var a, b2, n, px, py;
+      for (b2 = 0; b2 < 16; b2++) for (a = 0; a < 16; a++) tone(t, a, b2, STONE_C, 26);
+      for (n = 0; n < 12; n++) col(t, rnd16(), rnd16(), STONE_C, 30);
+      for (n = 0; n < 3; n++) {
+        px = rnd16(); py = rnd16();
+        for (a = 0; a < 5; a++) {
+          col(t, px, py, STONE_C, -40);
+          px += r() < 0.6 ? 1 : 0;
+          py += r() < 0.5 ? 1 : 0;
+        }
+      }
+    };
+    var cells = function (t, n, base, mortar, vary, edge, sd) {
+      var rr = rngFrom(sd), pts = [], a, b2, p, ox, oy, d, d1, d2, bi;
+      for (a = 0; a < n; a++) pts.push([rr() * 16, rr() * 16, (rr() - 0.5) * vary]);
+      for (b2 = 0; b2 < 16; b2++) {
+        for (a = 0; a < 16; a++) {
+          d1 = 99; d2 = 99; bi = 0;
+          for (p = 0; p < n; p++) {
+            for (ox = -16; ox <= 16; ox += 16) {
+              for (oy = -16; oy <= 16; oy += 16) {
+                d = Math.hypot(a - pts[p][0] - ox, b2 - pts[p][1] - oy);
+                if (d < d1) { d2 = d1; d1 = d; bi = p; } else if (d < d2) d2 = d;
+              }
+            }
+          }
+          if (d2 - d1 < edge) col(t, a, b2, mortar, (r() - 0.5) * 10);
+          else col(t, a, b2, base, pts[bi][2] + (r() - 0.5) * 14);
+        }
+      }
+    };
+    var oreBlobs = function (t, n, main, hi, lo) {
+      var a, px, py, w, dx, dy;
+      for (a = 0; a < n; a++) {
+        px = 1 + ((r() * 12) | 0); py = 1 + ((r() * 12) | 0); w = 2 + ((r() * 2) | 0);
+        for (dy = 0; dy < 2; dy++) for (dx = 0; dx < w; dx++) col(t, px + dx, py + dy, main, (r() - 0.5) * 14);
+        col(t, px, py, hi, 0);
+        col(t, px + w - 1, py + 1, lo, 0);
+      }
+    };
+
+    /* 0 rumput atas */
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) grassPx(0, x, y);
+    /* 1 rumput samping */
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(1, x, y, DIRT_C, 26);
+    dirtSpecks(1, 5);
+    for (x = 0; x < 16; x++) {
+      var depth = 3 + ((r() * 3) | 0);
+      for (y = 0; y < depth; y++) grassPx(1, x, y);
+      if (r() < 0.4) col(1, x, depth, GRASS_C, -34);
+    }
+    /* 2 tanah */
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(2, x, y, DIRT_C, 26);
+    dirtSpecks(2, 0);
+    /* 3 batu */
+    stoneFill(3);
+    /* 4 pasir */
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(4, x, y, [219, 206, 148], 16);
+    for (i = 0; i < 18; i++) col(4, rnd16(), rnd16(), [219, 206, 148], -26);
+    for (i = 0; i < 10; i++) col(4, rnd16(), rnd16(), [219, 206, 148], 18);
+    /* 5 kayu samping */
     for (y = 0; y < 16; y++) {
       for (x = 0; x < 16; x++) {
-        noise(0, x, y, [98, 164, 58], 36);
-        noise(2, x, y, [134, 94, 60], 34);
-        noise(3, x, y, [126, 127, 131], 30);
-        noise(4, x, y, [218, 205, 146], 20);
-        var streak = (x % 4 === 0) ? -22 : ((x % 4 === 2) ? 10 : 0);
-        noise(5, x, y, [104 + streak, 78 + streak, 46 + streak], 14);
-        var dx = x - 7.5, dy = y - 7.5, d = Math.max(Math.abs(dx), Math.abs(dy));
-        if (d >= 7) noise(6, x, y, [100, 74, 44], 16);
-        else noise(6, x, y, (Math.floor(Math.sqrt(dx * dx + dy * dy)) % 2) ? [170, 136, 86] : [146, 112, 68], 14);
-        if (r() >= 0.16) noise(7, x, y, [48, 118, 42], 56);
-        var joint = ((x + (Math.floor(y / 4) % 2) * 8) % 16) === 0;
-        if (y % 4 === 3 || joint) noise(8, x, y, [136, 100, 56], 10);
-        else noise(8, x, y, [178, 140, 86], 14);
+        var sk = (((x * 37) % 7) - 3) * 5, bark = [106 + sk, 80 + sk, 48 + sk];
+        if (x % 5 === 0) col(5, x, y, bark, -26); else tone(5, x, y, bark, 12);
       }
     }
-    for (x = 0; x < 16; x++) {
-      var depth = 3 + Math.floor(r() * 2);
-      for (y = 0; y < 16; y++) {
-        if (y < depth) noise(1, x, y, [98, 164, 58], 36);
-        else noise(1, x, y, [134, 94, 60], 34);
+    for (i = 0; i < 3; i++) { var kx = rnd16(), ky = rnd16(); col(5, kx, ky, [106, 80, 48], -44); col(5, kx, ky + 1, [106, 80, 48], -36); }
+    /* 6 kayu atas */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        var dx6 = x - 7.5, dy6 = y - 7.5, d6 = Math.max(Math.abs(dx6), Math.abs(dy6));
+        if (d6 >= 7) tone(6, x, y, [100, 74, 44], 16);
+        else tone(6, x, y, (Math.floor(Math.sqrt(dx6 * dx6 + dy6 * dy6)) % 2) ? [170, 136, 86] : [146, 112, 68], 14);
       }
     }
-    for (i = 0; i < 16; i++) {
-      dot(3, Math.floor(r() * 16), Math.floor(r() * 16), 92, 94, 98);
-      dot(3, Math.floor(r() * 16), Math.floor(r() * 16), 160, 161, 165);
-      dot(2, Math.floor(r() * 16), Math.floor(r() * 16), 104, 72, 44);
+    /* 7 daun (ada lubang transparan) */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        if (r() < 0.14) continue;
+        var lq = r();
+        tone(7, x, y, lq < 0.3 ? [34, 92, 34] : (lq > 0.75 ? [80, 152, 58] : [52, 122, 44]), 10);
+      }
     }
+    /* 8 papan */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        var row = (y / 4) | 0, bs = ((row * 13) % 3 - 1) * 8, jx = (row % 2) * 8;
+        if (y % 4 === 3) col(8, x, y, [128, 92, 52], (r() - 0.5) * 8);
+        else if (x === jx) col(8, x, y, [140, 102, 60], 0);
+        else tone(8, x, y, [178 + bs, 140 + bs, 86 + bs], 12);
+      }
+    }
+    for (i = 0; i < 12; i++) { var gy = rnd16(); if (gy % 4 !== 3) col(8, rnd16(), gy, [160, 122, 74], -10); }
+    /* 9 kaca */
     for (i = 0; i < 16; i++) {
       dot(9, i, 0, 196, 228, 238); dot(9, i, 15, 196, 228, 238);
       dot(9, 0, i, 196, 228, 238); dot(9, 15, i, 196, 228, 238);
     }
     for (i = 3; i < 7; i++) dot(9, i, i, 235, 247, 252);
     for (i = 3; i < 5; i++) dot(9, i + 2, i, 235, 247, 252);
+    /* 10 bata */
+    for (y = 0; y < 16; y++) {
+      for (x = 0; x < 16; x++) {
+        var br = (y / 4) | 0, off = (br % 2) * 4;
+        if (y % 4 === 3 || ((x + off) % 8) === 7) col(10, x, y, [176, 172, 164], (r() - 0.5) * 14);
+        else {
+          var bsh = (((((x + off) / 8) | 0) * 7 + br * 13) % 5 - 2) * 6;
+          tone(10, x, y, [156 + bsh, 70 + bsh / 2, 54 + bsh / 2], 20);
+        }
+      }
+    }
+    /* 11 batu kasar */
+    cells(11, 9, [124, 125, 129], [74, 75, 80], 30, 1.5, 515);
+    /* 12 bijih batu bara */
+    stoneFill(12);
+    oreBlobs(12, 6, [30, 30, 34], [66, 66, 72], [14, 14, 18]);
+    /* 13 bijih emas */
+    stoneFill(13);
+    oreBlobs(13, 6, [236, 196, 60], [255, 232, 130], [186, 144, 38]);
     return c;
   }
   var atlas = makeAtlas();
@@ -455,9 +597,9 @@ if (typeof THREE === 'undefined') {
   var clouds = [];
   (function () {
     var cr = rngFrom(77);
-    for (var i = 0; i < 14; i++) {
+    for (var i = 0; i < 40; i++) {
       var m = new THREE.Mesh(new THREE.BoxGeometry(8 + cr() * 10, 1.4, 5 + cr() * 7), cloudMat);
-      m.position.set(cr() * (W + 80) - 40, H + 10 + cr() * 4, cr() * (D + 80) - 40);
+      m.position.set((cr() - 0.5) * 320, H + 10 + cr() * 4, (cr() - 0.5) * 320);
       scene.add(m); clouds.push(m);
     }
   })();
@@ -488,34 +630,31 @@ if (typeof THREE === 'undefined') {
   ];
   var UVS = [[0, 0], [1, 0], [1, 1], [0, 1]];
 
-  function getM(x, y, z) {
-    if (y < 0) return STONE;
-    if (y >= H || x < 0 || x >= W || z < 0 || z >= D) return AIR;
-    return world[IDX(x, y, z)];
-  }
-
-  function buildGeometry(cx, cz) {
+  function buildGeometry(c) {
     var pos = [], nor = [], uv = [], col = [], idx = [], vc = 0;
-    var x0 = cx * CH, z0 = cz * CH, x, y, z, f, i;
-    for (x = x0; x < x0 + CH; x++) {
-      for (z = z0; z < z0 + CH; z++) {
-        for (y = 0; y < H; y++) {
-          var b = world[IDX(x, y, z)];
+    var data = c.data, x0 = c.cx * CH, z0 = c.cz * CH, lx, lz, y, f, i;
+    for (lx = 0; lx < CH; lx++) {
+      for (lz = 0; lz < CH; lz++) {
+        for (y = 0; y <= c.maxY; y++) {
+          var b = data[(y * CH + lz) * CH + lx];
           if (!b) continue;
-          var def = BLOCKS[b];
+          var def = BLOCKS[b], tv = 0.93 + 0.07 * hash2(x0 + lx + y * 57, z0 + lz, 5);
           for (f = 0; f < 6; f++) {
-            var F = FACES[f];
-            var nb = getM(x + F.n[0], y + F.n[1], z + F.n[2]);
+            var F = FACES[f], ax = lx + F.n[0], ay = y + F.n[1], az = lz + F.n[2], nb;
+            if (ay < 0) nb = STONE;
+            else if (ay >= H) nb = AIR;
+            else if (ax >= 0 && ax < CH && az >= 0 && az < CH) nb = data[(ay * CH + az) * CH + ax];
+            else nb = getBlock(x0 + ax, ay, z0 + az);
             if (!TRANS[nb]) continue;
             if (b === GLASS && nb === GLASS) continue;
             var tile = def[F.k];
             var u0 = tile / 16 + 0.0004, u1 = (tile + 1) / 16 - 0.0004;
             for (i = 0; i < 4; i++) {
               var v = F.v[i];
-              pos.push(x + v[0], y + v[1], z + v[2]);
+              pos.push(lx + v[0], y + v[1], lz + v[2]);
               nor.push(F.n[0], F.n[1], F.n[2]);
               uv.push(UVS[i][0] ? u1 : u0, UVS[i][1]);
-              col.push(F.s, F.s, F.s);
+              col.push(F.s * tv, F.s * tv, F.s * tv);
             }
             idx.push(vc, vc + 1, vc + 2, vc, vc + 2, vc + 3);
             vc += 4;
@@ -534,49 +673,80 @@ if (typeof THREE === 'undefined') {
     return g;
   }
 
-  var chunks = [], dirty = new Set();
-  (function () { for (var i = 0; i < NC * NC; i++) chunks.push({ mesh: null }); })();
-  function rebuildChunk(ci) {
-    var c = chunks[ci];
+  var RD = isTouch ? 4 : 6, streamTimer = 0;
+  scene.fog.far = RD * CH - 6;
+  scene.fog.near = scene.fog.far * 0.45;
+  var dirty = new Set();
+  function unloadChunk(c) {
     if (c.mesh) { scene.remove(c.mesh); c.mesh.geometry.dispose(); c.mesh = null; }
-    var g = buildGeometry(ci % NC, Math.floor(ci / NC));
-    if (g) { c.mesh = new THREE.Mesh(g, material); scene.add(c.mesh); }
+    c.built = false;
   }
-  function rebuildAll() { for (var i = 0; i < chunks.length; i++) rebuildChunk(i); dirty.clear(); }
-  function markDirty(x, z) {
-    var cx = Math.floor(x / CH), cz = Math.floor(z / CH), lx = x % CH, lz = z % CH;
-    dirty.add(cz * NC + cx);
-    if (lx === 0 && cx > 0) dirty.add(cz * NC + cx - 1);
-    if (lx === CH - 1 && cx < NC - 1) dirty.add(cz * NC + cx + 1);
-    if (lz === 0 && cz > 0) dirty.add((cz - 1) * NC + cx);
-    if (lz === CH - 1 && cz < NC - 1) dirty.add((cz + 1) * NC + cx);
+  function rebuildChunk(c) {
+    if (c.mesh) { scene.remove(c.mesh); c.mesh.geometry.dispose(); c.mesh = null; }
+    var g = buildGeometry(c);
+    if (g) {
+      c.mesh = new THREE.Mesh(g, material);
+      c.mesh.position.set(c.cx * CH, 0, c.cz * CH);
+      scene.add(c.mesh);
+    }
+    c.built = true;
+  }
+  function updateChunks(budget) {
+    var pcx = Math.floor(player.x / CH), pcz = Math.floor(player.z / CH), todo = [], dx, dz, c, i;
+    for (dx = -RD; dx <= RD; dx++) {
+      for (dz = -RD; dz <= RD; dz++) {
+        c = chunks.get(cKey(pcx + dx, pcz + dz));
+        if (!c || !c.built) todo.push([Math.max(Math.abs(dx), Math.abs(dz)) * 100 + Math.abs(dx) + Math.abs(dz), pcx + dx, pcz + dz]);
+      }
+    }
+    todo.sort(function (a, b) { return a[0] - b[0]; });
+    for (i = 0; i < todo.length && i < budget; i++) rebuildChunk(getChunk(todo[i][1], todo[i][2]));
+    var far = [];
+    chunks.forEach(function (ch) {
+      var d = Math.max(Math.abs(ch.cx - pcx), Math.abs(ch.cz - pcz));
+      if (d > RD + 3) far.push(ch);
+      else if (d > RD + 1 && ch.built) unloadChunk(ch);
+    });
+    far.forEach(function (ch) { unloadChunk(ch); chunks.delete(ch.key); });
+  }
+  function rebuildAll() {
+    chunks.forEach(unloadChunk);
+    dirty.clear();
+    updateChunks(40);
   }
   function setBlock(x, y, z, id) {
-    var i = IDX(x, y, z);
-    world[i] = id;
-    edits.set(i, id);
-    markDirty(x, z);
+    var cx = Math.floor(x / CH), cz = Math.floor(z / CH), c = getChunk(cx, cz);
+    var lx = x - cx * CH, lz = z - cz * CH, i = (y * CH + lz) * CH + lx;
+    c.data[i] = id;
+    if (id && y > c.maxY) c.maxY = y;
+    var m = edits.get(c.key);
+    if (!m) { m = new Map(); edits.set(c.key, m); }
+    m.set(i, id);
+    dirty.add(c.key);
+    if (lx === 0) dirty.add(cKey(cx - 1, cz));
+    if (lx === CH - 1) dirty.add(cKey(cx + 1, cz));
+    if (lz === 0) dirty.add(cKey(cx, cz - 1));
+    if (lz === CH - 1) dirty.add(cKey(cx, cz + 1));
     saveSoon();
   }
 
   /* ---------- Pemain ---------- */
   var PW = 0.3, PH = 1.8, EYE = 1.62;
-  var player = { x: W / 2 + 0.5, y: 30, z: D / 2 + 0.5, vx: 0, vy: 0, vz: 0, onGround: false, fly: false };
+  var player = { x: 0.5, y: 30, z: 0.5, vx: 0, vy: 0, vz: 0, onGround: false, fly: false };
   var yaw = 0, pitch = 0;
 
-  function topY(x, z) { for (var y = H - 1; y >= 0; y--) if (world[IDX(x, y, z)] !== AIR) return y; return 0; }
+  function topY(x, z) { for (var y = H - 1; y >= 0; y--) if (getBlock(x, y, z) !== AIR) return y; return 0; }
   function spawn() {
-    var cx = W >> 1, cz = D >> 1, best = null;
-    for (var r = 0; r < 20 && !best; r++) {
+    var best = null;
+    for (var r = 0; r < 24 && !best; r++) {
       for (var dx = -r; dx <= r && !best; dx++) {
         for (var dz = -r; dz <= r; dz++) {
           if (Math.max(Math.abs(dx), Math.abs(dz)) !== r) continue;
-          var x = cx + dx, z = cz + dz;
-          if (world[IDX(x, topY(x, z), z)] === GRASS) { best = [x, z]; break; }
+          if (getBlock(dx, topY(dx, dz), dz) === GRASS) { best = [dx, dz]; break; }
         }
       }
     }
-    if (!best) best = [cx, cz];
+    if (!best) best = [0, 0];
     player.x = best[0] + 0.5; player.z = best[1] + 0.5;
     player.y = topY(best[0], best[1]) + 1.01;
     player.vx = player.vy = player.vz = 0;
@@ -589,8 +759,7 @@ if (typeof THREE === 'undefined') {
   function solid(x, y, z) {
     if (y < 0) return true;
     if (y >= H) return false;
-    if (x < 0 || x >= W || z < 0 || z >= D) return true;
-    return world[IDX(x, y, z)] !== AIR;
+    return getBlock(x, y, z) !== AIR;
   }
   function collides(x, y, z) {
     var x0 = Math.floor(x - PW + 1e-4), x1 = Math.floor(x + PW - 1e-4);
@@ -641,7 +810,7 @@ if (typeof THREE === 'undefined') {
     var tmz = d[2] !== 0 ? (d[2] > 0 ? z + 1 - o[2] : o[2] - z) * tdz : Infinity;
     var t = 0, fx = 0, fy = 0, fz = 0;
     while (t <= 6) {
-      if (inB(x, y, z) && world[IDX(x, y, z)] !== AIR) {
+      if (y >= 0 && y < H && getBlock(x, y, z) !== AIR) {
         if (!fx && !fy && !fz) return null;
         return { x: x, y: y, z: z, nx: fx, ny: fy, nz: fz };
       }
@@ -663,7 +832,7 @@ if (typeof THREE === 'undefined') {
       setBlock(target.x, target.y, target.z, AIR);
     } else {
       var nx = target.x + target.nx, ny = target.y + target.ny, nz = target.z + target.nz;
-      if (!inB(nx, ny, nz) || world[IDX(nx, ny, nz)] !== AIR || overlapsPlayer(nx, ny, nz)) return;
+      if (ny < 0 || ny >= H || getBlock(nx, ny, nz) !== AIR || overlapsPlayer(nx, ny, nz)) return;
       setBlock(nx, ny, nz, sel + 1);
     }
   }
@@ -698,19 +867,23 @@ if (typeof THREE === 'undefined') {
   function select(i) {
     sel = i;
     slots.forEach(function (s, k) { s.classList.toggle('sel', k === i); });
+    var el = slots[i], bar = $('bar');
+    if (el.offsetLeft < bar.scrollLeft) bar.scrollLeft = el.offsetLeft - 4;
+    else if (el.offsetLeft + el.offsetWidth > bar.scrollLeft + bar.clientWidth) bar.scrollLeft = el.offsetLeft + el.offsetWidth - bar.clientWidth + 4;
     toast(BLOCKS[i + 1].name);
   }
   (function () {
     var bar = $('bar');
-    for (var i = 0; i < 8; i++) {
+    var LABELS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='];
+    for (var i = 0; i < 12; i++) {
       (function (i) {
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'slot';
         b.setAttribute('aria-label', BLOCKS[i + 1].name);
         b.appendChild(makeIcon(i + 1));
-        var n = document.createElement('span'); n.className = 'num'; n.textContent = String(i + 1); b.appendChild(n);
-        b.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); select(i); });
+        var n = document.createElement('span'); n.className = 'num'; n.textContent = LABELS[i]; b.appendChild(n);
+        b.addEventListener('click', function () { select(i); });
         bar.appendChild(b); slots.push(b);
       })(i);
     }
@@ -746,7 +919,7 @@ if (typeof THREE === 'undefined') {
       clearTimeout(newArm); newArm = 0; b.textContent = 'Dunia baru';
       seed = 1 + Math.floor(Math.random() * 99999);
       edits.clear();
-      generate(); spawn(); rebuildAll(); saveNow();
+      chunks.forEach(unloadChunk); chunks.clear(); spawn(); rebuildAll(); saveNow();
       closeMenu();
     }
   });
@@ -773,11 +946,12 @@ if (typeof THREE === 'undefined') {
     if (e.code.indexOf('Arrow') === 0) e.preventDefault();
     keys[e.code] = true;
     if (e.code === 'KeyF' && !e.repeat) toggleFly();
-    if (/^Digit[1-8]$/.test(e.code)) select(Number(e.code.slice(5)) - 1);
+    var hk = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3, Digit5: 4, Digit6: 5, Digit7: 6, Digit8: 7, Digit9: 8, Digit0: 9, Minus: 10, Equal: 11 };
+    if (hk[e.code] !== undefined) select(hk[e.code]);
   });
   window.addEventListener('keyup', function (e) { keys[e.code] = false; });
   window.addEventListener('blur', releaseAll);
-  canvas.addEventListener('wheel', function (e) { e.preventDefault(); if (playing) select((sel + (e.deltaY > 0 ? 1 : -1) + 8) % 8); }, { passive: false });
+  canvas.addEventListener('wheel', function (e) { e.preventDefault(); if (playing) select((sel + (e.deltaY > 0 ? 1 : -1) + 12) % 12); }, { passive: false });
 
   var look = { id: null, x: 0, y: 0, moved: 0, type: '', btn: 0 };
   canvas.addEventListener('pointerdown', function (e) {
@@ -934,11 +1108,19 @@ if (typeof THREE === 'undefined') {
     else hl.visible = false;
 
     var n = 0;
-    dirty.forEach(function (ci) { if (n < 3) { rebuildChunk(ci); dirty.delete(ci); n++; } });
+    dirty.forEach(function (k) {
+      var dc = chunks.get(k);
+      if (!dc || !dc.built) { dirty.delete(k); return; }
+      if (n < 3) { rebuildChunk(dc); dirty.delete(k); n++; }
+    });
+    streamTimer -= dt;
+    if (streamTimer <= 0) { streamTimer = 0.05; updateChunks(2); }
 
     for (var i = 0; i < clouds.length; i++) {
-      clouds[i].position.x += dt * 1.5;
-      if (clouds[i].position.x > W + 40) clouds[i].position.x = -40;
+      var q = clouds[i].position;
+      q.x += dt * 1.5;
+      if (q.x - player.x > 160) q.x -= 320; else if (q.x - player.x < -160) q.x += 320;
+      if (q.z - player.z > 160) q.z -= 320; else if (q.z - player.z < -160) q.z += 320;
     }
 
     infoT -= dt;
