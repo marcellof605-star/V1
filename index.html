@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Blokland - Full Expanded</title>
+  <title>Blokland - Ultimate</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap" media="print" onload="this.media='all'">
   <style>
-  [hidden] { display: none !important; }
+[hidden] { display: none !important; }
   :root {
     --ink: #121d17;
     --panel: rgba(16, 26, 20, 0.92);
@@ -15,13 +15,34 @@
     --muted: #aebdad;
     --accent: #f2b134;
     --grass: #5fa83b;
+    --grass-dark: #3f7a27;
+    --dirt: #865c3a;
+    --sand: #dacd92;
+    --stone: #8d928f;
+    --stone-dark: #5f6461;
     --display: 'Pixelify Sans', ui-monospace, 'Courier New', monospace;
-    --body: 'Figtree', system-ui, -apple-system, sans-serif;
+    --body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --hb: 68px;
     color-scheme: dark;
   }
-  html, body { height: 100%; margin: 0; background: var(--ink); color: var(--text); font: 15px/1.45 var(--body); overflow: hidden; }
-  #app { position: relative; width: 100%; height: 100%; touch-action: none; user-select: none; -webkit-user-select: none; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--text);
+    font: 15px/1.45 var(--body);
+    overflow: hidden;
+  }
+  #app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
   #view { display: block; width: 100%; height: 100%; background: var(--ink); }
 
   /* HUD */
@@ -30,33 +51,46 @@
     position: absolute; top: 14px; left: 16px;
     font: 500 14px/1.3 var(--display);
     font-variant-numeric: tabular-nums;
-    text-shadow: 0 1px 0 rgba(0,0,0,0.7), 0 0 6px rgba(0,0,0,0.5);
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7), 0 0 6px rgba(0, 0, 0, 0.5);
   }
   #stats {
-    position: absolute; bottom: calc(var(--hb) + 12px); left: 50%; transform: translateX(-50%);
-    display: flex; gap: 16px; font: 700 13px var(--display); text-shadow: 1px 1px 0 #000; pointer-events: auto;
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 16px; font: 700 12px var(--display); text-shadow: 1px 1px 0 #000;
   }
   .stat-bar { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.6); padding: 4px 10px; border: 2px solid #0b110d; }
-  .bar-fill { height: 8px; width: 80px; background: #222; border: 1px solid #000; }
+  .bar-fill { height: 8px; width: 70px; background: #222; border: 1px solid #000; }
   .bar-fill i { display: block; height: 100%; transition: width 0.2s; }
   #hpFill { background: #e74c3c; width: 100%; }
   #foodFill { background: #e67e22; width: 100%; }
 
   #topbtns { position: absolute; top: 10px; right: 16px; display: flex; gap: 8px; pointer-events: auto; }
   .chip {
-    font: 700 14px var(--display); color: #fff; background: #3b4a40; border: 3px solid #0b110d;
-    padding: 6px 12px; min-height: 42px; box-shadow: inset 0 -4px 0 #26332a, inset 0 3px 0 #61796a, 3px 3px 0 rgba(0,0,0,0.5);
-    text-shadow: 2px 2px 0 #000; cursor: pointer;
+    font: 700 14px var(--display);
+    color: #fff;
+    background: #3b4a40;
+    border: 3px solid #0b110d;
+    padding: 6px 12px;
+    min-height: 42px;
+    box-shadow: inset 0 -4px 0 #26332a, inset 0 3px 0 #61796a, 3px 3px 0 rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 0 #000;
+    cursor: pointer;
   }
-  .chip:active { transform: translate(2px, 2px); }
+  .chip:active { transform: translate(2px, 2px); box-shadow: inset 0 -2px 0 #26332a, inset 0 2px 0 #61796a, 1px 1px 0 rgba(0, 0, 0, 0.5); }
+  .chip.on { background: var(--accent); color: #231a05; text-shadow: none; box-shadow: inset 0 -4px 0 #b57f12, inset 0 3px 0 #ffd77a, 3px 3px 0 rgba(0, 0, 0, 0.5); }
+  .chip:focus-visible, .btn:focus-visible, .slot:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
   #wet { position: absolute; inset: 0; background: rgba(30, 90, 190, 0.38); }
   #cross { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; mix-blend-mode: difference; }
   #cross::before, #cross::after { content: ""; position: absolute; background: #fff; }
   #cross::before { left: 10px; top: 0; width: 2px; height: 22px; }
   #cross::after { left: 0; top: 10px; width: 22px; height: 2px; }
   #toast {
-    position: absolute; left: 0; right: 0; bottom: calc(var(--hb) + 52px); text-align: center;
-    font: 700 17px var(--display); text-shadow: 0 2px 0 rgba(0,0,0,0.75); opacity: 0; transition: opacity 0.25s;
+    position: absolute; left: 0; right: 0; bottom: calc(var(--hb) + 10px);
+    text-align: center;
+    font: 700 17px var(--display);
+    letter-spacing: 0.04em;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.75);
+    opacity: 0; transition: opacity 0.25s;
   }
   #toast.show { opacity: 1; }
 
@@ -65,61 +99,141 @@
   .bar { position: relative; display: flex; gap: 4px; width: min(100%, 428px); margin: 0 auto; pointer-events: auto; }
   .slot {
     position: relative; flex: 1 1 0; min-width: 0; aspect-ratio: 1; max-height: 48px;
-    padding: 0; display: grid; place-items: center; background: #2a3a30; border: 4px solid #0b110d;
-    box-shadow: inset 0 0 0 2px #4d6355; cursor: pointer;
+    padding: 0; display: grid; place-items: center;
+    background: #2a3a30;
+    border: 4px solid #0b110d;
+    box-shadow: inset 0 0 0 2px #4d6355;
+    cursor: pointer;
   }
   .slot img, .islot img { width: 78%; height: auto; image-rendering: pixelated; pointer-events: none; }
-  .slot .num { position: absolute; left: 3px; top: 1px; font: 700 10px var(--display); color: var(--muted); pointer-events: none; }
+  .slot .num {
+    position: absolute; left: 3px; top: 1px;
+    font: 700 10px var(--display); color: var(--muted);
+    pointer-events: none;
+  }
   .slot.sel { background: #566d5b; box-shadow: inset 0 0 0 3px var(--accent), 0 0 0 2px #fff3d0; }
   .slot.sel .num { color: var(--accent); }
+  body.touch .slot .num { display: none; }
 
   /* Touch controls */
   #touch { position: absolute; inset: 0; pointer-events: none; }
-  #dpad { position: absolute; left: 16px; bottom: calc(var(--hb) + 16px); display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); gap: 4px; pointer-events: none; }
+  #dpad {
+    position: absolute; left: 16px; bottom: calc(var(--hb) + 16px);
+    display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); gap: 4px;
+    pointer-events: none;
+  }
   .dp {
-    --ar: #fff; position: relative; padding: 0; pointer-events: auto; touch-action: none;
-    background: #3b4a40; border: 4px solid #0b110d; box-shadow: inset 0 -4px 0 #26332a, inset 0 3px 0 #61796a, 3px 3px 0 rgba(0,0,0,0.5); cursor: pointer;
+    --ar: #fff;
+    position: relative; padding: 0; pointer-events: auto; touch-action: none;
+    background: #3b4a40;
+    border: 4px solid #0b110d;
+    box-shadow: inset 0 -4px 0 #26332a, inset 0 3px 0 #61796a, 3px 3px 0 rgba(0, 0, 0, 0.5);
+    cursor: pointer;
   }
   .dp::before { content: ""; position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform: translate(-50%, -50%); border-style: solid; }
-  .dp.on { --ar: #231a05; background: var(--accent); transform: translate(2px, 2px); }
-  #dpUp { grid-column: 2; grid-row: 1; } #dpLeft { grid-column: 1; grid-row: 2; } #dpJump { grid-column: 2; grid-row: 2; } #dpRight { grid-column: 3; grid-row: 2; } #dpDown { grid-column: 2; grid-row: 3; }
+  .dp.on { --ar: #231a05; background: var(--accent); transform: translate(2px, 2px); box-shadow: inset 0 -4px 0 #b57f12, inset 0 3px 0 #ffd77a, 1px 1px 0 rgba(0, 0, 0, 0.5); }
+  #dpUp { grid-column: 2; grid-row: 1; }
+  #dpLeft { grid-column: 1; grid-row: 2; }
+  #dpJump { grid-column: 2; grid-row: 2; }
+  #dpRight { grid-column: 3; grid-row: 2; }
+  #dpDown { grid-column: 2; grid-row: 3; }
   #dpUp::before { border-width: 0 10px 14px 10px; border-color: transparent transparent var(--ar) transparent; }
   #dpDown::before { border-width: 14px 10px 0 10px; border-color: var(--ar) transparent transparent transparent; }
   #dpLeft::before { border-width: 10px 14px 10px 0; border-color: transparent var(--ar) transparent transparent; }
   #dpRight::before { border-width: 10px 0 10px 14px; border-color: transparent transparent transparent var(--ar); }
-  #dpJump { font: 700 10px var(--display); color: var(--ar); } #dpJump::before { display: none; }
-
-  #actions { position: absolute; right: 16px; bottom: calc(var(--hb) + 16px); display: flex; flex-direction: column; gap: 10px; align-items: flex-end; pointer-events: none; }
-  .act {
-    pointer-events: auto; touch-action: none; width: 96px; height: 50px; padding: 0;
-    font: 700 14px var(--display); color: #fff; background: #3b4a40; border: 4px solid #0b110d;
-    box-shadow: inset 0 -5px 0 #26332a, inset 0 4px 0 #61796a, 4px 4px 0 rgba(0,0,0,0.5); text-shadow: 2px 2px 0 #000; cursor: pointer;
+  #dpJump { font: 700 10px var(--display); color: var(--ar); text-shadow: 1px 1px 0 #000; }
+  #dpJump.on { text-shadow: none; }
+  #dpJump::before { display: none; }
+  #actions {
+    position: absolute; right: 16px; bottom: calc(var(--hb) + 16px);
+    display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+    pointer-events: none;
   }
-  .act.on { background: var(--accent); color: #231a05; transform: translate(2px, 2px); }
+  .act {
+    pointer-events: auto; touch-action: none;
+    width: 96px; height: 50px; padding: 0;
+    font: 700 14px var(--display); letter-spacing: 0.03em; color: #fff;
+    background: #3b4a40;
+    border: 4px solid #0b110d;
+    box-shadow: inset 0 -5px 0 #26332a, inset 0 4px 0 #61796a, 4px 4px 0 rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 0 #000;
+    cursor: pointer;
+  }
+  .act.on { background: var(--accent); color: #231a05; text-shadow: none; transform: translate(2px, 2px); box-shadow: inset 0 -5px 0 #b57f12, inset 0 4px 0 #ffd77a, 2px 2px 0 rgba(0, 0, 0, 0.5); }
   .act.big { height: 58px; }
 
-  /* Panels & Menu */
-  #overlay, #inv { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(8, 14, 10, 0.72); }
-  .panel { width: min(100%, 470px); max-height: 100%; overflow-y: auto; padding: 20px; background: var(--panel); border: 4px solid #0b110d; box-shadow: inset 0 0 0 3px #4d6355, 6px 6px 0 rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 14px; }
-  .panel h1 { margin: 0; font: 700 42px/1 var(--display); color: var(--accent); }
-  .strip { display: flex; height: 8px; } .strip i { flex: 1; }
-  .lead { margin: 0; color: var(--muted); }
+  /* Menu */
+  #overlay {
+    position: absolute; inset: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    background: rgba(8, 14, 10, 0.66);
+  }
+  .panel {
+    width: min(100%, 470px); max-height: 100%; overflow-y: auto;
+    padding: 20px;
+    background: var(--panel);
+    border: 4px solid #0b110d;
+    box-shadow: inset 0 0 0 3px #4d6355, 6px 6px 0 rgba(0, 0, 0, 0.5);
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .panel h1 { margin: 0; font: 700 42px/1 var(--display); letter-spacing: 0.02em; color: var(--accent); text-wrap: balance; }
+  .strip { display: flex; height: 8px; }
+  .strip i { flex: 1; }
+  .lead { margin: 0; color: var(--muted); max-width: 60ch; }
   .btn {
-    font: 700 17px var(--display); color: #fff; background: #8d928f; border: 4px solid #0b110d; padding: 10px 18px; min-height: 52px;
-    box-shadow: inset 0 -5px 0 rgba(0,0,0,0.3), inset 0 4px 0 rgba(255,255,255,0.32), 4px 4px 0 rgba(0,0,0,0.5); text-shadow: 2px 2px 0 rgba(0,0,0,0.6); cursor: pointer;
+    font: 700 17px var(--display); color: #fff;
+    background: #8d928f;
+    border: 4px solid #0b110d; padding: 10px 18px; min-height: 52px;
+    box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.3), inset 0 4px 0 rgba(255, 255, 255, 0.32), 4px 4px 0 rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+    cursor: pointer;
   }
   .btn.primary { background: #5fa83b; }
   .btn:hover { filter: brightness(1.1); }
+  .btn:active { transform: translate(3px, 3px); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.3), inset 0 3px 0 rgba(255, 255, 255, 0.32), 1px 1px 0 rgba(0, 0, 0, 0.5); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .cnt { position: absolute; right: 2px; bottom: 0; font: 700 11px var(--display); color: #fff; text-shadow: 1px 1px 0 #000; pointer-events: none; }
+  .row .btn { min-width: 0; padding-inline: 10px; }
+  .help { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+  .help section { min-width: 0; }
+  .help h2 { margin: 0 0 4px; font: 700 14px var(--display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .help ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  .help li + li { margin-top: 2px; }
+
+  .cnt {
+    position: absolute; right: 2px; bottom: 0;
+    font: 700 11px var(--display); color: #fff; text-shadow: 1px 1px 0 #000;
+    pointer-events: none;
+  }
+  .islot .num { position: absolute; left: 3px; top: 1px; font: 700 9px var(--display); color: var(--muted); pointer-events: none; }
+  #inv { position: absolute; inset: 0; z-index: 11; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(8, 14, 10, 0.72); }
+  .invpanel { gap: 10px; }
+  .invpanel h2 { margin: 0; font: 700 22px var(--display); color: var(--accent); }
+  .invpanel h3 { margin: 0; font: 700 12px var(--display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
   .grid { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; }
-  .islot { position: relative; min-width: 0; aspect-ratio: 1; padding: 0; display: grid; place-items: center; background: #2a3a30; border: 3px solid #0b110d; box-shadow: inset 0 0 0 2px #4d6355; cursor: pointer; }
+  .islot {
+    position: relative; min-width: 0; aspect-ratio: 1; padding: 0; display: grid; place-items: center;
+    background: #2a3a30; border: 3px solid #0b110d; box-shadow: inset 0 0 0 2px #4d6355; cursor: pointer;
+  }
+  .islot:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
   .islot.sel { background: #566d5b; box-shadow: inset 0 0 0 2px var(--accent); }
   .recipes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 6px; }
-  .recipe { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 42px; padding: 4px 8px; font: 700 13px var(--display); color: #fff; background: #2a3a30; border: 3px solid #0b110d; cursor: pointer; }
+  .recipe {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 42px; padding: 4px 8px; text-align: left;
+    font: 700 13px var(--display); color: #fff;
+    background: #2a3a30; border: 3px solid #0b110d; box-shadow: inset 0 0 0 2px #4d6355; cursor: pointer;
+  }
+  .recipe:hover:not(:disabled) { background: #3b4a40; }
   .recipe:disabled { opacity: 0.4; cursor: default; }
+  .recipe:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
   .recipe img { width: 26px; height: auto; image-rendering: pixelated; flex: none; }
+  .recipe .arr { color: var(--accent); margin: 0 2px; }
   .recipe .res { margin-left: auto; display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .held { min-height: 20px; font: 700 14px var(--display); color: var(--muted); }
+  .held b { color: var(--text); }
+
+  @media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
+  .btn:disabled { opacity: 0.65; cursor: wait; }
   </style>
 </head>
 <body>
@@ -166,7 +280,7 @@
       <h3>Hotbar</h3>
       <div class="grid" id="invHot"></div>
       <div id="craftWrap"><h3>Meracik</h3><div class="recipes" id="recipes"></div></div>
-      <div class="held" id="held" style="font-weight:700"></div>
+      <div class="held" id="held"></div>
       <div class="row">
         <button class="btn" id="invTrash" type="button">Buang</button>
         <button class="btn primary" id="invClose" type="button">Tutup</button>
@@ -177,18 +291,28 @@
   <div id="overlay">
     <div class="panel">
       <h1>Blokland</h1>
-      <div class="strip"><i style="background:var(--grass)"></i><i style="background:var(--stone)"></i></div>
-      <p class="lead">Jelajahi dunia balok acak tanpa batas dengan fitur lengkap!</p>
+      <div class="strip"><i style="background:var(--grass)"></i><i style="background:var(--dirt)"></i><i style="background:var(--stone)"></i><i style="background:var(--sand)"></i></div>
+      <p class="lead">Jelajahi dunia balok acak tanpa batas. Perubahan tersimpan otomatis.</p>
       <button class="btn primary" id="playBtn" type="button" disabled>Memuat…</button>
       <div class="row">
-        <button class="btn" id="modeBtn" type="button" style="grid-column: 1 / -1">Mode: Bertahan</button>
+        <button class="btn" id="newBtn" type="button">Dunia baru</button>
+        <button class="btn" id="modeBtn" type="button">Mode: Bertahan</button>
       </div>
       <div class="row">
-        <button class="btn" id="newBtn" type="button">Dunia Baru</button>
         <button class="btn" id="exportBtn" type="button">Ekspor Dunia</button>
+        <button class="btn" id="importBtn" type="button">Impor Dunia</button>
       </div>
-      <button class="btn" id="importBtn" type="button">Impor Dunia (.json)</button>
       <input type="file" id="importFile" accept=".json" hidden>
+      <div class="help">
+        <section>
+          <h2>Kontrol</h2>
+          <ul>
+            <li>W A SD berjalan, Spasi melompat</li>
+            <li>Klik kiri hancurkan, klik kanan taruh</li>
+            <li>E membuka tas, Esc membuka menu</li>
+          </ul>
+        </section>
+      </div>
     </div>
   </div>
 </div>
@@ -198,9 +322,13 @@
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
-  if (typeof THREE === 'undefined') return;
 
-  /* ---------- Web Audio Synthesizer SFX ---------- */
+  if (typeof THREE === 'undefined') {
+    $('overlay').innerHTML = '<div class="panel"><h1>Blokland</h1><p class="lead">Pustaka 3D gagal dimuat.</p></div>';
+    return;
+  }
+
+  /* ---------- Audio Synthesizer (Web Audio API) ---------- */
   var AudioCtx = window.AudioContext || window.webkitAudioContext;
   var actx = null;
   function initAudio() { if (!actx) actx = new AudioCtx(); }
@@ -211,35 +339,49 @@
       osc.connect(gain); gain.connect(actx.destination);
       var now = actx.currentTime;
       if (type === 'break') {
-        osc.type = 'square'; osc.frequency.setValueAtTime(140, now); osc.frequency.exponentialRampToValueAtTime(30, now + 0.1);
-        gain.gain.setValueAtTime(0.25, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+        osc.type = 'square'; osc.frequency.setValueAtTime(120, now); osc.frequency.exponentialRampToValueAtTime(30, now + 0.1);
+        gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
         osc.start(now); osc.stop(now + 0.1);
       } else if (type === 'place') {
-        osc.type = 'sine'; osc.frequency.setValueAtTime(200, now); osc.frequency.exponentialRampToValueAtTime(280, now + 0.08);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(180, now); osc.frequency.exponentialRampToValueAtTime(240, now + 0.08);
         gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
         osc.start(now); osc.stop(now + 0.08);
       }
     } catch(e) {}
   }
 
-  /* ---------- Dunia & Balok ---------- */
+  /* ---------- Dunia & Blok ---------- */
   var H = 56, CH = 16, CSZ = CH * CH * H, TILES = 32, WL = 13;
   var AIR = 0, GRASS = 1, DIRT = 2, STONE = 3, SAND = 4, LOG = 5, LEAVES = 6, PLANKS = 7, GLASS = 8, BRICK = 9, COBBLE = 10, COAL = 11, GOLD = 12, SNOW = 13, WATER = 14, SBRICK = 15, SANDST = 16, GOLDBLK = 17, COALBLK = 18, KAKTUS = 19, IRON = 20, DIAMOND = 21, GRAVEL = 22, CLAY = 23, DARKPL = 24, SMOOTH = 25, IRONBLK = 26, DIAMBLK = 27, LAMP = 28, PINEL = 29;
   var BLOCKS = {
-    1: { name: 'Rumput', top: 0, side: 1, bottom: 2 }, 2: { name: 'Tanah', top: 2, side: 2, bottom: 2 },
-    3: { name: 'Batu', top: 3, side: 3, bottom: 3 }, 4: { name: 'Pasir', top: 4, side: 4, bottom: 4 },
-    5: { name: 'Kayu', top: 6, side: 5, bottom: 6 }, 6: { name: 'Daun', top: 7, side: 7, bottom: 7 },
-    7: { name: 'Papan', top: 8, side: 8, bottom: 8 }, 8: { name: 'Kaca', top: 9, side: 9, bottom: 9 },
-    9: { name: 'Bata', top: 10, side: 10, bottom: 10 }, 10: { name: 'Batu kasar', top: 11, side: 11, bottom: 11 },
-    11: { name: 'Bijih batu bara', top: 12, side: 12, bottom: 12 }, 12: { name: 'Bijih emas', top: 13, side: 13, bottom: 13 },
-    13: { name: 'Salju', top: 15, side: 15, bottom: 15 }, 14: { name: 'Air', top: 14, side: 14, bottom: 14 },
-    15: { name: 'Bata batu', top: 16, side: 16, bottom: 16 }, 16: { name: 'Batu pasir', top: 17, side: 17, bottom: 17 },
-    17: { name: 'Blok emas', top: 18, side: 18, bottom: 18 }, 18: { name: 'Blok batu bara', top: 19, side: 19, bottom: 19 },
-    19: { name: 'Kaktus', top: 20, side: 21, bottom: 20 }, 20: { name: 'Bijih besi', top: 22, side: 22, bottom: 22 },
-    21: { name: 'Bijih berlian', top: 23, side: 23, bottom: 23 }, 22: { name: 'Kerikil', top: 24, side: 24, bottom: 24 },
-    23: { name: 'Tanah liat', top: 25, side: 25, bottom: 25 }, 24: { name: 'Kayu gelap', top: 26, side: 26, bottom: 26 },
-    25: { name: 'Batu halus', top: 27, side: 27, bottom: 27 }, 26: { name: 'Blok besi', top: 28, side: 28, bottom: 28 },
-    27: { name: 'Blok berlian', top: 29, side: 29, bottom: 29 }, 28: { name: 'Lampu', top: 30, side: 30, bottom: 30 },
+    1: { name: 'Rumput', top: 0, side: 1, bottom: 2 },
+    2: { name: 'Tanah', top: 2, side: 2, bottom: 2 },
+    3: { name: 'Batu', top: 3, side: 3, bottom: 3 },
+    4: { name: 'Pasir', top: 4, side: 4, bottom: 4 },
+    5: { name: 'Kayu', top: 6, side: 5, bottom: 6 },
+    6: { name: 'Daun', top: 7, side: 7, bottom: 7 },
+    7: { name: 'Papan', top: 8, side: 8, bottom: 8 },
+    8: { name: 'Kaca', top: 9, side: 9, bottom: 9 },
+    9: { name: 'Bata', top: 10, side: 10, bottom: 10 },
+    10: { name: 'Batu kasar', top: 11, side: 11, bottom: 11 },
+    11: { name: 'Bijih batu bara', top: 12, side: 12, bottom: 12 },
+    12: { name: 'Bijih emas', top: 13, side: 13, bottom: 13 },
+    13: { name: 'Salju', top: 15, side: 15, bottom: 15 },
+    14: { name: 'Air', top: 14, side: 14, bottom: 14 },
+    15: { name: 'Bata batu', top: 16, side: 16, bottom: 16 },
+    16: { name: 'Batu pasir', top: 17, side: 17, bottom: 17 },
+    17: { name: 'Blok emas', top: 18, side: 18, bottom: 18 },
+    18: { name: 'Blok batu bara', top: 19, side: 19, bottom: 19 },
+    19: { name: 'Kaktus', top: 20, side: 21, bottom: 20 },
+    20: { name: 'Bijih besi', top: 22, side: 22, bottom: 22 },
+    21: { name: 'Bijih berlian', top: 23, side: 23, bottom: 23 },
+    22: { name: 'Kerikil', top: 24, side: 24, bottom: 24 },
+    23: { name: 'Tanah liat', top: 25, side: 25, bottom: 25 },
+    24: { name: 'Kayu gelap', top: 26, side: 26, bottom: 26 },
+    25: { name: 'Batu halus', top: 27, side: 27, bottom: 27 },
+    26: { name: 'Blok besi', top: 28, side: 28, bottom: 28 },
+    27: { name: 'Blok berlian', top: 29, side: 29, bottom: 29 },
+    28: { name: 'Lampu', top: 30, side: 30, bottom: 30 },
     29: { name: 'Daun pinus', top: 31, side: 31, bottom: 31 }
   };
   var TIER_NAMES = ['kayu', 'batu', 'besi', 'berlian'], TIER_COL = ['#b07f45', '#8f9591', '#e4e4e4', '#4fe3d8'];
@@ -248,60 +390,228 @@
   for (var ti = 0; ti < 4; ti++) for (var ki = 0; ki < 4; ki++) {
     BLOCKS[31 + ti * 4 + ki] = { name: KIND_NAMES[ki] + ' ' + TIER_NAMES[ti], item: true, kind: KIND_KEYS[ki], tier: ti + 1, tcol: TIER_COL[ti] };
   }
+  var LASTID = 46;
   var TRANS = (function () { var t = []; for (var i = 0; i < 30; i++) t.push(false); t[0] = t[6] = t[8] = t[14] = t[29] = true; return t; })();
-  function rngFrom(s) { var a = s >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
-  function hash2(x, y, s) { var h = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1013904223)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967296; }
-  function vnoise(x, y, s) { var xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi; var a = hash2(xi, yi, s), b = hash2(xi + 1, yi, s), c = hash2(xi, yi + 1, s), d = hash2(xi + 1, yi + 1, s); var u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; }
+  function rngFrom(s) {
+    var a = s >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hash2(x, y, s) {
+    var h = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 1013904223)) | 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+  function vnoise(x, y, s) {
+    var xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    var a = hash2(xi, yi, s), b = hash2(xi + 1, yi, s), c = hash2(xi, yi + 1, s), d = hash2(xi + 1, yi + 1, s);
+    var u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  }
 
   var seed = 1, gameTime = 0.25;
   function heightAt(x, z) {
     var n = vnoise(x / 48, z / 48, seed) * 0.5 + vnoise(x / 18, z / 18, seed + 7) * 0.33 + vnoise(x / 5, z / 5, seed + 13) * 0.17;
-    return Math.max(1, Math.floor(10 + n * 16));
+    var h = 10 + n * 16;
+    var mt = vnoise(x / 90, z / 90, seed + 71);
+    if (mt > 0.66) h += (mt - 0.66) * 80;
+    var rv = Math.abs(vnoise(x / 64, z / 64, seed + 31) - 0.5);
+    if (rv < 0.07) {
+      var f = 1 - rv / 0.07;
+      f = f * f * (3 - 2 * f) * Math.max(0, 1 - Math.max(0, mt - 0.55) * 8);
+      h = h * (1 - f) + 7.5 * f;
+    }
+    var lk = vnoise(x / 80, z / 80, seed + 53);
+    if (lk < 0.34) { var g = (0.34 - lk) / 0.34; h -= g * g * 12; }
+    return Math.max(1, Math.floor(h));
   }
   var cKey = function (cx, cz) { return (cx + 32768) * 65536 + (cz + 32768); };
-  var chunks = new Map(), edits = new Map();
+  var chunks = new Map();
+  var edits = new Map();
+
+  function biomeAt(x, z) { var bm = vnoise(x / 120, z / 120, seed + 91); return bm < 0.32 ? 1 : (bm > 0.72 ? 2 : 0); }
+  function hash3(x, y, z, sd) {
+    var h = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(z, 1274126177) + Math.imul(sd, 1013904223)) | 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+  function vnoise3(x, y, z, sd) {
+    var xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z), xf = x - xi, yf = y - yi, zf = z - zi;
+    var u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), w = zf * zf * (3 - 2 * zf);
+    var a = hash3(xi, yi, zi, sd), b = hash3(xi + 1, yi, zi, sd), c = hash3(xi, yi + 1, zi, sd), d = hash3(xi + 1, yi + 1, zi, sd);
+    var e = hash3(xi, yi, zi + 1, sd), f = hash3(xi + 1, yi, zi + 1, sd), g = hash3(xi, yi + 1, zi + 1, sd), q = hash3(xi + 1, yi + 1, zi + 1, sd);
+    var x1 = a + (b - a) * u, x2 = c + (d - c) * u, x3 = e + (f - e) * u, x4 = g + (q - g) * u;
+    var y1 = x1 + (x2 - x1) * v, y2 = x3 + (x4 - x3) * v;
+    return y1 + (y2 - y1) * w;
+  }
 
   function genChunk(cx, cz) {
-    var data = new Uint8Array(CSZ), x0 = cx * CH, z0 = cz * CH, maxY = 0, lx, lz, y;
-    for (lx = 0; lx < CH; lx++) for (lz = 0; lz < CH; lz++) {
-      var wx = x0 + lx, wz = z0 + lz, h = heightAt(wx, wz);
-      for (y = 0; y <= h; y++) {
-        data[(y * CH + lz) * CH + lx] = y === h ? (h < WL ? SAND : GRASS) : (y >= h - 3 ? DIRT : STONE);
+    var data = new Uint8Array(CSZ), x0 = cx * CH, z0 = cz * CH, maxY = 0, lx, lz, y, x, z;
+    for (lx = 0; lx < CH; lx++) {
+      for (lz = 0; lz < CH; lz++) {
+        var wx = x0 + lx, wz = z0 + lz;
+        var h = heightAt(wx, wz), beach = h <= WL + 1, bio = biomeAt(wx, wz);
+        for (y = 0; y <= h; y++) {
+          var b;
+          if (y === h) {
+            if (h >= 34) b = SNOW;
+            else if (h >= 21) b = STONE;
+            else if (h < WL) { var bd = hash2(wx, wz, seed + 7); b = bd < 0.3 ? GRAVEL : (bd < 0.45 ? CLAY : SAND); }
+            else if (beach || bio === 1) b = SAND;
+            else if (bio === 2) b = SNOW;
+            else b = GRASS;
+          } else if (y >= h - 3) {
+            if (h >= 21) b = STONE;
+            else if (beach || bio === 1) b = SAND;
+            else b = DIRT;
+          } else if (bio === 1 && h < 21 && y >= h - 6) b = SANDST;
+          else {
+            b = STONE;
+            var orr = hash2(wx + y * 131, wz + y * 17, seed + 211);
+            if (orr < 0.014) b = COAL;
+            else if (orr > 0.9975 && y <= 14) b = GOLD;
+            else if (orr > 0.985 && orr <= 0.9975 && y <= 32) b = IRON;
+            else if (y <= 9 && hash2(wx + y * 53, wz + y * 29, seed + 311) > 0.9975) b = DIAMOND;
+          }
+          data[(y * CH + lz) * CH + lx] = b;
+        }
+        for (y = 4; y <= h - 5; y++) {
+          if (Math.abs(vnoise3(wx / 16, y / 10, wz / 16, seed + 201) - 0.5) < 0.07 && Math.abs(vnoise3(wx / 16, y / 10, wz / 16, seed + 202) - 0.5) < 0.08) data[(y * CH + lz) * CH + lx] = AIR;
+        }
+        if (h < WL) {
+          for (y = h + 1; y <= WL; y++) data[(y * CH + lz) * CH + lx] = WATER;
+          if (WL > maxY) maxY = WL;
+        }
+        if (h > maxY) maxY = h;
       }
-      if (h < WL) { for (y = h + 1; y <= WL; y++) data[(y * CH + lz) * CH + lx] = WATER; maxY = Math.max(maxY, WL); }
-      maxY = Math.max(maxY, h);
+    }
+    var put = function (wx, wy, wz, b, onlyAir) {
+      var px = wx - x0, pz = wz - z0;
+      if (px < 0 || px >= CH || pz < 0 || pz >= CH || wy < 0 || wy >= H) return;
+      var i = (wy * CH + pz) * CH + px;
+      if (onlyAir && data[i]) return;
+      data[i] = b;
+      if (wy > maxY) maxY = wy;
+    };
+    var PINE_R = [0, 1, 1, 2, 2, 2];
+    for (x = x0 - 3; x < x0 + CH + 3; x++) {
+      for (z = z0 - 3; z < z0 + CH + 3; z++) {
+        var q = hash2(x, z, seed + 99);
+        if (q >= 0.02) continue;
+        var gh = heightAt(x, z);
+        if (gh <= WL + 1 || gh >= 21) continue;
+        var bio2 = biomeAt(x, z), t, dx, dz, dy, rad;
+        if (bio2 === 1) {
+          if (q < 0.006) { var ch2 = 1 + ((hash2(x, z, seed + 105) * 3) | 0); for (t = 1; t <= ch2; t++) put(x, gh + t, z, KAKTUS, false); }
+          continue;
+        }
+        if (q >= 0.012) continue;
+        if (bio2 === 2) {
+          var pt = 6, ptop = gh + 1 + pt;
+          for (t = 1; t <= pt; t++) put(x, gh + t, z, LOG, false);
+          for (dy = -4; dy <= 1; dy++) {
+            rad = PINE_R[1 - dy];
+            for (dx = -rad; dx <= rad; dx++) for (dz = -rad; dz <= rad; dz++) {
+              if (rad >= 2 && Math.abs(dx) === rad && Math.abs(dz) === rad) continue;
+              put(x + dx, ptop + dy, z + dz, PINEL, true);
+            }
+          }
+          continue;
+        }
+        var big = hash2(x, z, seed + 107) < 0.15;
+        var th = big ? 7 : 4 + (hash2(x, z, seed + 101) < 0.5 ? 0 : 1), top = gh + 1 + th;
+        for (t = 1; t <= th; t++) put(x, gh + t, z, LOG, false);
+        for (dy = big ? -3 : -2; dy <= 1; dy++) {
+          rad = big ? (dy <= -1 ? 3 : 2) : (dy <= -1 ? 2 : 1);
+          for (dx = -rad; dx <= rad; dx++) {
+            for (dz = -rad; dz <= rad; dz++) {
+              if (Math.abs(dx) === rad && Math.abs(dz) === rad && (dy >= 0 || hash2(x * 7 + dx, z * 13 + dz + dy * 31, seed + 103) < 0.5)) continue;
+              put(x + dx, top + dy, z + dz, LEAVES, true);
+            }
+          }
+        }
+      }
     }
     var key = cKey(cx, cz), m = edits.get(key);
-    if (m) m.forEach(function (id, idx) { data[idx] = id; var yy = Math.floor(idx / (CH * CH)); if (id && yy > maxY) maxY = yy; });
+    if (m) m.forEach(function (id, idx) {
+      data[idx] = id;
+      var yy = Math.floor(idx / (CH * CH));
+      if (id && yy > maxY) maxY = yy;
+    });
     return { cx: cx, cz: cz, key: key, data: data, maxY: maxY, mesh: null, wmesh: null, built: false };
   }
-  function getChunk(cx, cz) { var k = cKey(cx, cz), c = chunks.get(k); if (!c) { c = genChunk(cx, cz); chunks.set(k, c); } return c; }
+  function getChunk(cx, cz) {
+    var k = cKey(cx, cz), c = chunks.get(k);
+    if (!c) { c = genChunk(cx, cz); chunks.set(k, c); }
+    return c;
+  }
   function isBlock(b) { return b !== AIR && b !== WATER; }
   function getBlock(x, y, z) {
-    if (y < 0) return STONE; if (y >= H) return AIR;
+    if (y < 0) return STONE;
+    if (y >= H) return AIR;
     var cx = Math.floor(x / CH), cz = Math.floor(z / CH), c = getChunk(cx, cz);
     return c.data[(y * CH + (z - cz * CH)) * CH + (x - cx * CH)];
   }
 
-  /* ---------- Simpan & Ekspor/Impor Dunia ---------- */
+  /* ---------- Simpan & Ekspor/Impor ---------- */
   var KEY = 'blokland-save-ultimate';
-  var creative = false, hp = 100, food = 100;
-  var inv = new Array(36).fill(null);
+  var saved = null;
+  try { var raw = localStorage.getItem(KEY); if (raw) saved = JSON.parse(raw); } catch (e) { saved = null; }
+  if (saved && typeof saved.seed === 'number') { seed = saved.seed; gameTime = saved.gameTime || 0.25; }
+  else { seed = 1 + Math.floor(Math.random() * 99999); saved = null; }
+  if (saved && Array.isArray(saved.edits)) {
+    saved.edits.forEach(function (pair) {
+      if (!Array.isArray(pair) || typeof pair[0] !== 'number' || !Array.isArray(pair[1])) return;
+      var m = new Map();
+      pair[1].forEach(function (e) {
+        if (Array.isArray(e) && e[0] >= 0 && e[0] < CSZ && e[1] >= 0 && e[1] <= 46) m.set(e[0], e[1]);
+      });
+      edits.set(pair[0], m);
+    });
+  }
 
+  var creative = !!(saved && saved.creative);
+  var hp = saved && saved.hp !== undefined ? saved.hp : 100;
+  var food = saved && saved.food !== undefined ? saved.food : 100;
+  var inv = [];
+  for (var ii = 0; ii < 36; ii++) {
+    var e0 = saved && Array.isArray(saved.inv) ? saved.inv[ii] : null;
+    inv.push(Array.isArray(e0) && e0[0] >= 1 && e0[0] <= 46 && e0[0] !== 14 && e0[1] >= 1 && e0[1] <= 64 ? { id: e0[0] | 0, n: e0[1] | 0 } : null);
+  }
+
+  var saveTimer = 0;
   function serialize() {
-    var arr = []; edits.forEach(function (m, k) { arr.push([k, Array.from(m)]); });
+    var arr = [];
+    edits.forEach(function (m, k) { arr.push([k, Array.from(m)]); });
     return { seed: seed, gameTime: gameTime, creative: creative, hp: hp, food: food, inv: inv.map(function (it) { return it ? [it.id, it.n] : 0; }), edits: arr, pos: [player.x, player.y, player.z, yaw, pitch] };
   }
   function saveNow() { try { localStorage.setItem(KEY, JSON.stringify(serialize())); } catch (e) {} }
+  function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 700); }
+
   function loadData(obj) {
     if (!obj) return;
     seed = obj.seed || seed; gameTime = obj.gameTime || 0.25; creative = !!obj.creative;
     hp = obj.hp !== undefined ? obj.hp : 100; food = obj.food !== undefined ? obj.food : 100;
-    if (Array.isArray(obj.inv)) inv = obj.inv.map(function (e) { return Array.isArray(e) ? { id: e[0], n: e[1] } : null; });
-    if (Array.isArray(obj.edits)) { edits.clear(); obj.edits.forEach(function (pair) { edits.set(pair[0], new Map(pair[1])); }); }
-    if (Array.isArray(obj.pos)) { player.x = obj.pos[0]; player.y = obj.pos[1]; player.z = obj.pos[2]; yaw = obj.pos[3]; pitch = obj.pos[4]; }
+    if (Array.isArray(obj.inv)) {
+      for(var i=0; i<36; i++) inv[i] = Array.isArray(obj.inv[i]) ? { id: obj.inv[i][0], n: obj.inv[i][1] } : null;
+    }
+    if (Array.isArray(obj.edits)) {
+      edits.clear();
+      obj.edits.forEach(function (pair) {
+        edits.set(pair[0], new Map(pair[1]));
+      });
+    }
+    if (Array.isArray(obj.pos) && obj.pos.length === 5) {
+      player.x = obj.pos[0]; player.y = obj.pos[1]; player.z = obj.pos[2]; yaw = obj.pos[3]; pitch = obj.pos[4];
+    }
   }
-  try { var raw = localStorage.getItem(KEY); if (raw) loadData(JSON.parse(raw)); } catch(e){}
 
   $('exportBtn').addEventListener('click', function() {
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(serialize()));
@@ -315,34 +625,135 @@
     reader.onload = function(evt) {
       try {
         loadData(JSON.parse(evt.target.result));
-        chunks.forEach(unloadChunk); chunks.clear(); rebuildAll();
+        chunks.forEach(unloadChunk); chunks.clear(); rebuildAll(); refreshHotbar();
         toast('Dunia berhasil dimuat!');
-      } catch(err) { toast('File tidak valid!'); }
+      } catch(err) { toast('File dunia tidak valid!'); }
     };
     reader.readAsText(file);
   });
 
-  /* ---------- Atlas & Grafik ---------- */
+  /* ---------- Tekstur Atlas Asli ---------- */
   function makeAtlas() {
-    var c = document.createElement('canvas'); c.width = TILES * 16; c.height = 16;
+    var c = document.createElement('canvas');
+    c.width = TILES * 16; c.height = 16;
     var g = c.getContext('2d');
-    for (var t = 0; t < TILES; t++) {
-      g.fillStyle = 'hsl(' + (t * 25) % 360 + ', 45%, 55%)'; g.fillRect(t * 16, 0, 16, 16);
+    var r = rngFrom(2024);
+    var cl = function (v) { return Math.max(0, Math.min(255, Math.round(v))); };
+    var dot = function (t, x, y, R, G, B) {
+      if (x < 0 || x > 15 || y < 0 || y > 15) return;
+      var f = (t !== 7 && t !== 9 && t !== 14 && t !== 31 && (x === 0 || y === 0 || x === 15 || y === 15)) ? 0.84 : 1;
+      R = ((R - 128) * 1.12 + 128) * f; G = ((G - 128) * 1.12 + 128) * f; B = ((B - 128) * 1.12 + 128) * f;
+      g.fillStyle = 'rgb(' + cl(R) + ',' + cl(G) + ',' + cl(B) + ')';
+      g.fillRect(t * 16 + x, y, 1, 1);
+    };
+    var tone = function (t, x, y, b, v) { var k = (((r() * 3) | 0) - 1) * v * 0.7; dot(t, x, y, b[0] + k, b[1] + k, b[2] + k); };
+    var col = function (t, x, y, b, k) { dot(t, x, y, b[0] + k, b[1] + k, b[2] + k); };
+    var rnd16 = function () { return (r() * 16) | 0; };
+    var x, y, i;
+
+    var GRASS_C = [98, 164, 58], DIRT_C = [134, 94, 60], STONE_C = [127, 128, 132];
+
+    var grassPx = function (t, px, py) {
+      var q = r();
+      if (q < 0.14) col(t, px, py, GRASS_C, -30 + (r() - 0.5) * 8);
+      else if (q > 0.9) col(t, px, py, GRASS_C, 24 + (r() - 0.5) * 8);
+      else tone(t, px, py, GRASS_C, 26);
+    };
+    var dirtSpecks = function (t, minY) {
+      var n, px, py;
+      for (n = 0; n < 16; n++) { px = rnd16(); py = rnd16(); if (py >= minY) col(t, px, py, DIRT_C, -34); }
+      for (n = 0; n < 9; n++) { px = rnd16(); py = rnd16(); if (py >= minY) col(t, px, py, DIRT_C, 26); }
+    };
+    var stoneFill = function (t) {
+      var a, b2, n;
+      for (b2 = 0; b2 < 16; b2++) for (a = 0; a < 16; a++) tone(t, a, b2, STONE_C, 26);
+      for (n = 0; n < 12; n++) col(t, rnd16(), rnd16(), STONE_C, 30);
+    };
+    var cells = function (t, n, base, mortar, vary, edge, sd) {
+      var rr = rngFrom(sd), pts = [], a, b2, p, ox, oy, d, d1, d2, bi;
+      for (a = 0; a < n; a++) pts.push([rr() * 16, rr() * 16, (rr() - 0.5) * vary]);
+      for (b2 = 0; b2 < 16; b2++) {
+        for (a = 0; a < 16; a++) {
+          d1 = 99; d2 = 99; bi = 0;
+          for (p = 0; p < n; p++) {
+            for (ox = -16; ox <= 16; ox += 16) {
+              for (oy = -16; oy <= 16; oy += 16) {
+                d = Math.hypot(a - pts[p][0] - ox, b2 - pts[p][1] - oy);
+                if (d < d1) { d2 = d1; d1 = d; bi = p; } else if (d < d2) d2 = d;
+              }
+            }
+          }
+          if (d2 - d1 < edge) col(t, a, b2, mortar, (r() - 0.5) * 10);
+          else col(t, a, b2, base, pts[bi][2] + (r() - 0.5) * 14);
+        }
+      }
+    };
+    var oreBlobs = function (t, n, main, hi, lo) {
+      var a, px, py, w, dx, dy;
+      for (a = 0; a < n; a++) {
+        px = 1 + ((r() * 12) | 0); py = 1 + ((r() * 12) | 0); w = 2 + ((r() * 2) | 0);
+        for (dy = 0; dy < 2; dy++) for (dx = 0; dx < w; dx++) col(t, px + dx, py + dy, main, (r() - 0.5) * 14);
+        col(t, px, py, hi, 0); col(t, px + w - 1, py + 1, lo, 0);
+      }
+    };
+
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) grassPx(0, x, y);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(1, x, y, DIRT_C, 26);
+    dirtSpecks(1, 5);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(2, x, y, DIRT_C, 26);
+    dirtSpecks(2, 0);
+    stoneFill(3);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(4, x, y, [219, 206, 148], 16);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) {
+      var sk = (((x * 37) % 7) - 3) * 5; tone(5, x, y, [106 + sk, 80 + sk, 48 + sk], 12);
     }
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(6, x, y, [146, 112, 68], 14);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) { if (r() < 0.14) continue; tone(7, x, y, [80, 152, 58], 10); }
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(8, x, y, [178, 140, 86], 12);
+    for (i = 0; i < 16; i++) { dot(9, i, 0, 196, 228, 238); dot(9, 0, i, 196, 228, 238); }
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(10, x, y, [156, 70, 54], 20);
+    cells(11, 9, [124, 125, 129], [74, 75, 80], 30, 1.5, 515);
+    stoneFill(12); oreBlobs(12, 6, [30, 30, 34], [66, 66, 72], [14, 14, 18]);
+    stoneFill(13); oreBlobs(13, 6, [236, 196, 60], [255, 232, 130], [186, 144, 38]);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(14, x, y, [46, 98, 196], 10);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(15, x, y, [240, 246, 252], 10);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(16, x, y, [138, 140, 144], 14);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(17, x, y, [214, 200, 142], 14);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(18, x, y, [244, 205, 70], 14);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(19, x, y, [38, 38, 44], 14);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(20, x, y, [50, 128, 58], 12);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(21, x, y, [46, 122, 54], 10);
+    stoneFill(22); oreBlobs(22, 6, [214, 160, 120], [240, 196, 160], [160, 110, 80]);
+    stoneFill(23); oreBlobs(23, 5, [88, 228, 224], [200, 255, 252], [40, 160, 170]);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(24, x, y, [128, 124, 120], 44);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(25, x, y, [160, 166, 180], 10);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(26, x, y, [100, 70, 46], 12);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(27, x, y, [152, 154, 158], 7);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(28, x, y, [214, 214, 220], 10);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(29, x, y, [96, 228, 222], 10);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(30, x, y, [255, 232, 150], 8);
+    for (y = 0; y < 16; y++) for (x = 0; x < 16; x++) tone(31, x, y, [44, 110, 76], 10);
     return c;
   }
   var atlas = makeAtlas();
-  var tex = new THREE.CanvasTexture(atlas); tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter;
+  var tex = new THREE.CanvasTexture(atlas);
+  tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false; tex.needsUpdate = true;
 
-  var app = $('app'), canvas = $('view');
+  /* ---------- Renderer & Scene ---------- */
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(72, 1, 0.05, 220); camera.rotation.order = 'YXZ';
-  var material = new THREE.MeshBasicMaterial({ map: tex, vertexColors: true });
-  var waterMat = new THREE.MeshBasicMaterial({ map: tex, vertexColors: true, transparent: true, opacity: 0.72 });
+  var material = new THREE.MeshBasicMaterial({ map: tex, vertexColors: true, alphaTest: 0.5 });
+  var waterMat = new THREE.MeshBasicMaterial({ map: tex, vertexColors: true, transparent: true, opacity: 0.72, depthWrite: false });
   scene.fog = new THREE.Fog(0x8fc9ec, 28, 62);
+  scene.background = new THREE.Color(0x8fc9ec);
 
+  var lineMat = new THREE.LineBasicMaterial({ color: 0x000000 });
+  var hl = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.004, 1.004, 1.004)), lineMat);
+  hl.visible = false; scene.add(hl);
+
+  /* ---------- Mesh Chunk Generator ---------- */
   var FACES = [
     { n: [1, 0, 0], v: [[1, 0, 1], [1, 0, 0], [1, 1, 0], [1, 1, 1]], s: 0.8, k: 'side' },
     { n: [-1, 0, 0], v: [[0, 0, 0], [0, 0, 1], [0, 1, 1], [0, 1, 0]], s: 0.8, k: 'side' },
@@ -365,7 +776,7 @@
   }
   function buildGeometry(c) {
     var A = { pos: [], nor: [], uv: [], col: [], idx: [], vc: 0 }, Wt = { pos: [], nor: [], uv: [], col: [], idx: [], vc: 0 };
-    var data = c.data, x0 = c.cx * CH, z0 = c.cz * CH, lx, lz, y, f;
+    var data = c.data, x0 = c.cx * CH, z0 = c.cz * CH, lx, lz, y, f, i;
     for (lx = 0; lx < CH; lx++) for (lz = 0; lz < CH; lz++) for (y = 0; y <= c.maxY; y++) {
       var b = data[(y * CH + lz) * CH + lx]; if (!b) continue;
       var def = BLOCKS[b], isW = b === WATER, T = isW ? Wt : A;
@@ -374,12 +785,13 @@
         if (ay < 0) nb = STONE; else if (ay >= H) nb = AIR;
         else if (ax >= 0 && ax < CH && az >= 0 && az < CH) nb = data[(ay * CH + az) * CH + ax];
         else nb = getBlock(x0 + ax, ay, z0 + az);
-        if (!TRANS[nb]) continue;
+        if (isW ? (nb !== WATER && !TRANS[nb]) : !TRANS[nb]) continue;
         var tile = def[F.k] || 0;
-        for (var i = 0; i < 4; i++) {
+        var u0 = tile / TILES + 0.0004, u1 = (tile + 1) / TILES - 0.0004;
+        for (i = 0; i < 4; i++) {
           T.pos.push(lx + F.v[i][0], y + F.v[i][1], lz + F.v[i][2]);
           T.nor.push(F.n[0], F.n[1], F.n[2]);
-          T.uv.push((tile + UVS[i][0]) / TILES, UVS[i][1]);
+          T.uv.push(UVS[i][0] ? u1 : u0, UVS[i][1]);
           T.col.push(F.s, F.s, F.s);
         }
         T.idx.push(T.vc, T.vc + 1, T.vc + 2, T.vc, T.vc + 2, T.vc + 3); T.vc += 4;
@@ -388,6 +800,7 @@
     return { a: mkGeo(A), w: mkGeo(Wt) };
   }
 
+  var RD = 4;
   function unloadChunk(c) {
     if (c.mesh) { scene.remove(c.mesh); c.mesh.geometry.dispose(); c.mesh = null; }
     if (c.wmesh) { scene.remove(c.wmesh); c.wmesh.geometry.dispose(); c.wmesh = null; }
@@ -403,7 +816,7 @@
   function rebuildAll() { chunks.forEach(unloadChunk); updateChunks(); }
   function updateChunks() {
     var pcx = Math.floor(player.x / CH), pcz = Math.floor(player.z / CH);
-    for (var dx = -3; dx <= 3; dx++) for (var dz = -3; dz <= 3; dz++) {
+    for (var dx = -RD; dx <= RD; dx++) for (var dz = -RD; dz <= RD; dz++) {
       var c = getChunk(pcx + dx, pcz + dz); if (!c.built) rebuildChunk(c);
     }
   }
@@ -413,13 +826,20 @@
     c.data[i] = id;
     var m = edits.get(c.key) || new Map(); edits.set(c.key, m); m.set(i, id);
     rebuildChunk(c);
-    saveNow();
+    saveSoon();
   }
 
-  /* ---------- Pemain & Input ---------- */
-  var PW = 0.3, PH = 1.8;
+  /* ---------- Pemain & Fisika ---------- *//* ---------- Pemain & Fisika ---------- */
+  var PW = 0.3, PH = 1.8, EYE = 1.62;
   var player = { x: 0.5, y: 30, z: 0.5, vx: 0, vy: 0, vz: 0, onGround: false, fly: false };
-  var yaw = 0, pitch = 0, keys = {}, playing = false, sel = 0;
+  var yaw = 0, pitch = 0, keys = {}, playing = false, sel = 0, wet = false;
+
+  function topY(x, z) { for (var y = H - 1; y >= 0; y--) if (getBlock(x, y, z) !== AIR) return y; return 0; }
+  function spawn() {
+    player.x = 0.5; player.z = 0.5; player.y = topY(0, 0) + 1.01;
+    player.vx = player.vy = player.vz = 0; yaw = 0; pitch = 0;
+  }
+  if (!saved) spawn();
 
   function solid(x, y, z) { return y < 0 ? true : (y >= H ? false : isBlock(getBlock(x, y, z))); }
   function collides(x, y, z) {
@@ -431,15 +851,21 @@
   }
   function raycast() {
     var cp = Math.cos(pitch), dir = [-cp * Math.sin(yaw), Math.sin(pitch), -cp * Math.cos(yaw)];
-    for (var t = 0; t < 6; t += 0.1) {
-      var cx = Math.floor(player.x + dir[0] * t), cy = Math.floor(player.y + 1.62 + dir[1] * t), cz = Math.floor(player.z + dir[2] * t);
-      if (isBlock(getBlock(cx, cy, cz))) return { x: cx, y: cy, z: cz };
+    var ox = player.x, oy = player.y + EYE, oz = player.z;
+    for (var t = 0; t <= 6; t += 0.05) {
+      var x = Math.floor(ox + dir[0] * t), y = Math.floor(oy + dir[1] * t), z = Math.floor(oz + dir[2] * t);
+      if (y >= 0 && y < H && isBlock(getBlock(x, y, z))) {
+        return { x: x, y: y, z: z };
+      }
     }
     return null;
   }
 
   /* ---------- Hotbar & Tas ---------- */
-  function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); setTimeout(function() { $('toast').classList.remove('show'); }, 1200); }
+  function toast(msg) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 1200);
+  }
   function refreshHotbar() {
     var bar = $('bar'); bar.innerHTML = '';
     for (var i = 0; i < 9; i++) {
@@ -454,14 +880,14 @@
     for (var j = 0; j < 36; j++) { if (!inv[j]) { inv[j] = { id: id, n: n }; refreshHotbar(); return; } }
   }
 
-  /* ---------- Tombol & Kontrol ---------- */
+  /* ---------- Event Utama & UI ---------- */
   $('playBtn').addEventListener('click', function() { initAudio(); $('overlay').hidden = true; playing = true; });
   $('menuBtn').addEventListener('click', function() { $('overlay').hidden = false; playing = false; saveNow(); });
   $('invBtn').addEventListener('click', function() { $('inv').hidden = !$('inv').hidden; });
   $('invClose').addEventListener('click', function() { $('inv').hidden = true; });
-  $('modeBtn').addEventListener('click', function() { creative = !creative; $('modeBtn').textContent = creative ? 'Mode: Kreatif' : 'Mode: Bertahan'; $('stats').hidden = creative; });
+  $('modeBtn').addEventListener('click', function() { creative = !creative; $('modeBtn').textContent = creative ? 'Mode: Kreatif' : 'Mode: Bertahan'; $('stats').hidden = creative; saveSoon(); });
   $('newBtn').addEventListener('click', function() {
-    seed = 1 + Math.floor(Math.random() * 99999); edits.clear(); chunks.forEach(unloadChunk); chunks.clear(); rebuildAll();
+    seed = 1 + Math.floor(Math.random() * 99999); edits.clear(); chunks.forEach(unloadChunk); chunks.clear(); spawn(); rebuildAll();
     $('overlay').hidden = true; playing = true; saveNow();
   });
 
@@ -485,21 +911,40 @@
     }
   });
 
-  /* ---------- Loop Game Utama ---------- */
+  /* Touch Controls setup */
+  var isTouch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  if (isTouch) { $('touch').hidden = false; document.body.classList.add('touch'); }
+
+  var look = { id: null, x: 0, y: 0 };
+  canvas.addEventListener('pointerdown', function(e) {
+    if (!playing) return;
+    look.id = e.pointerId; look.x = e.clientX; look.y = e.clientY;
+  });
+  canvas.addEventListener('pointermove', function(e) {
+    if (!playing || e.pointerId !== look.id) return;
+    var dx = e.clientX - look.x, dy = e.clientY - look.y;
+    look.x = e.clientX; look.y = e.clientY;
+    yaw -= dx * 0.005; pitch -= dy * 0.005;
+    pitch = Math.max(-1.55, Math.min(1.55, pitch));
+  });
+  canvas.addEventListener('pointerup', function(e) { if (e.pointerId === look.id) look.id = null; });
+
+  /* ---------- Loop Utama ---------- */
   var last = performance.now();
   function loop(now) {
     requestAnimationFrame(loop);
     var dt = Math.min(0.05, (now - last) / 1000); last = now;
 
     if (playing) {
-      // Waktu Siang / Malam Otomatis
+      // Siklus Siang/Malam Otomatis
       gameTime = (gameTime + dt / 240) % 1;
-      var skyColor = new THREE.Color().setHSL(0.6, 0.5, Math.max(0.05, Math.sin(gameTime * Math.PI * 2)));
+      var lightVal = Math.max(0.08, Math.sin(gameTime * Math.PI * 2));
+      var skyColor = new THREE.Color().setHSL(0.6, 0.5, lightVal);
       scene.background = skyColor; scene.fog.color = skyColor;
 
-      // Status Survival
+      // Status Survival (HP & Lapar)
       if (!creative) {
-        food = Math.max(0, food - dt * 0.15);
+        food = Math.max(0, food - dt * 0.1);
         if (food === 0) hp = Math.max(0, hp - dt * 1.5);
         $('hpFill').style.width = hp + '%';
         $('foodFill').style.width = food + '%';
@@ -507,21 +952,28 @@
 
       // Pergerakan
       var speed = 4.4; player.vx = 0; player.vz = 0;
-      if (keys.KeyW) player.vz = -speed; if (keys.KeyS) player.vz = speed;
-      if (keys.KeyA) player.vx = -speed; if (keys.KeyD) player.vx = speed;
+      var sy = Math.sin(yaw), cy = Math.cos(yaw);
+      if (keys.KeyW || keys.ArrowUp) { player.vx -= sy * speed; player.vz -= cy * speed; }
+      if (keys.KeyS || keys.ArrowDown) { player.vx += sy * speed; player.vz += cy * speed; }
+      if (keys.KeyA || keys.ArrowLeft) { player.vx -= cy * speed; player.vz += sy * speed; }
+      if (keys.KeyD || keys.ArrowRight) { player.vx += cy * speed; player.vz -= sy * speed; }
 
       player.vy -= 26 * dt;
       if (keys.Space && player.onGround) { player.vy = 8.4; player.onGround = false; }
 
       var ny = player.y + player.vy * dt;
-      if (!collides(player.x, ny, player.z)) player.y = ny; else { if (player.vy < 0) player.onGround = true; player.vy = 0; }
-      if (!collides(player.x + player.vx * dt, player.y, player.z)) player.x += player.vx * dt;
-      if (!collides(player.x, player.y, player.z + player.vz * dt)) player.z += player.vz * dt;
+      if (!collides(player.x, ny, player.z)) { player.y = ny; if (player.vy !== 0) player.onGround = false; }
+      else { if (player.vy < 0) player.onGround = true; player.vy = 0; }
+
+      var nx = player.x + player.vx * dt;
+      if (!collides(nx, player.y, player.z)) player.x = nx;
+      var nz = player.z + player.vz * dt;
+      if (!collides(player.x, player.y, nz)) player.z = nz;
 
       updateChunks();
     }
 
-    camera.position.set(player.x, player.y + 1.62, player.z);
+    camera.position.set(player.x, player.y + EYE, player.z);
     camera.rotation.set(pitch, yaw, 0);
     renderer.render(scene, camera);
   }
@@ -533,7 +985,9 @@
   }
   window.addEventListener('resize', resize);
   resize(); refreshHotbar(); rebuildAll();
-  var pb = $('playBtn'); pb.disabled = false; pb.textContent = 'Mainkan';
+  $('playBtn').disabled = false; $('playBtn').textContent = 'Mainkan';
+  $('modeBtn').textContent = creative ? 'Mode: Kreatif' : 'Mode: Bertahan';
+  $('stats').hidden = creative;
   requestAnimationFrame(loop);
 })();
 </script>
